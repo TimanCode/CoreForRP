@@ -438,7 +438,7 @@
       "Position": "49.5370712,34.0889587,43.6761398",
       "Rotation": "1.81932798E-08,-8.23505879E-17,0.305232495,0.952278018",
       "Scale": "0.563288927,0.563288927,0.563288927",
-      "Tags": "",
+      "Tags": "interactable",
       "Enabled": true,
       "NetworkMode": 2,
       "NetworkFlags": 0,
@@ -532,6 +532,21 @@
           "OverrideMassCenter": false,
           "RigidbodyFlags": 0,
           "StartAsleep": false
+        },
+        {
+          "__type": "ArmorPickup",
+          "__guid": "b746f8d8-6a59-47b0-950a-2ee2f9ad4fc7",
+          "__enabled": true,
+          "Flags": 0,
+          "Amount": 1,
+          "ArmorAmount": 100,
+          "ItemId": "test_item",
+          "OnComponentDestroy": null,
+          "OnComponentDisabled": null,
+          "OnComponentEnabled": null,
+          "OnComponentFixedUpdate": null,
+          "OnComponentStart": null,
+          "OnComponentUpdate": null
         }
       ],
       "Children": []

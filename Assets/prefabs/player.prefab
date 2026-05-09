@@ -104,6 +104,37 @@
         "Sensitivity": 0.1,
         "SmoothTime": 0.15,
         "Target": null
+      },
+      {
+        "__type": "PlayerInteractor",
+        "__guid": "8ac62aaa-80ce-428e-aef8-f200333823c7",
+        "__enabled": true,
+        "Flags": 0,
+        "InteractDistance": 200,
+        "OnComponentDestroy": null,
+        "OnComponentDisabled": null,
+        "OnComponentEnabled": null,
+        "OnComponentFixedUpdate": null,
+        "OnComponentStart": null,
+        "OnComponentUpdate": null
+      },
+      {
+        "__type": "PlayerStats",
+        "__guid": "629d1c65-9744-4437-a42b-1c94ec719ba4",
+        "__enabled": true,
+        "Flags": 0,
+        "Armor": 0,
+        "Health": 100,
+        "Hunger": 100,
+        "MaxArmor": 100,
+        "MaxHealth": 100,
+        "OnComponentDestroy": null,
+        "OnComponentDisabled": null,
+        "OnComponentEnabled": null,
+        "OnComponentFixedUpdate": null,
+        "OnComponentStart": null,
+        "OnComponentUpdate": null,
+        "Thirst": 100
       }
     ],
     "Children": [
