@@ -1,0 +1,222 @@
+@using Sandbox
+@using Sandbox.UI
+@using System
+@inherits PanelComponent
+@namespace Sandbox
+
+<root class="@(IsChatOpen ? "chat-open" : "")">
+    <div class="messages" @ref="MessagesPanel">
+        @foreach (var msg in Messages)
+        {
+            if (!IsChatOpen && (DateTime.Now - msg.Time).TotalSeconds > 10)
+                continue;
+
+            <div class="entry @(msg.IsAction ? "action" : "") @(msg.IsDoAction ? "do-action" : "")">
+                <div class="name">@(msg.PlayerName)</div>
+                <div class="text">@(msg.Text)</div>
+            </div>
+        }
+    </div>
+
+    <TextEntry @ref="InputBox"
+               class="chat-input @(IsChatOpen ? "" : "dimmed")"
+               placeholder="@_chatPlaceholder"
+               onsubmit="@SubmitMessage" />
+</root>
+
+@code
+{
+    public static ChatPanel Current;
+
+    public class ChatMessage
+    {
+        public string PlayerName { get; set; }
+        public string Text { get; set; }
+        public DateTime Time { get; set; }
+        public bool IsAction { get; set; }
+        public bool IsDoAction { get; set; }
+    }
+
+    public List<ChatMessage> Messages { get; set; } = new();
+    public TextEntry InputBox;
+    public Panel MessagesPanel;
+    public bool IsChatOpen;
+
+    private bool _timerActive;
+    private const int MaxMessages = 100;
+    private string _chatPlaceholder = "Нажмите [T] чтобы ввести текст"; // запасное значение
+
+    protected override void OnStart()
+    {
+        Current = this;
+
+        // Получаем актуальную клавишу для действия "chat"
+        try
+        {
+            string keyName = Input.GetButtonOrigin("chat");
+            if (!string.IsNullOrWhiteSpace(keyName))
+            {
+                _chatPlaceholder = $"Нажмите [{keyName}] чтобы ввести текст";
+            }
+        }
+        catch
+        {
+            // оставляем стандартную строку
+        }
+
+        // При старте чат закрыт – запрещаем фокус
+        if (InputBox != null)
+            InputBox.AcceptsFocus = false;
+
+        StartExpireTimer();
+    }
+
+    private async void StartExpireTimer()
+    {
+        _timerActive = true;
+        while (_timerActive && this.IsValid())
+        {
+            await GameTask.DelaySeconds(0.5f);
+            if (!_timerActive || !this.IsValid()) break;
+            StateHasChanged();
+        }
+    }
+
+    protected override void OnDestroy()
+    {
+        _timerActive = false;
+    }
+
+    protected override void OnUpdate()
+    {
+        if (Input.Pressed("chat") && !IsChatOpen)
+            OpenChat();
+
+        if (!IsChatOpen)
+            return;
+
+        //if (Input.Pressed("pause"))
+        //    CloseChat();
+    }
+
+    async void OpenChat()
+    {
+        IsChatOpen = true;
+        StateHasChanged();
+        await GameTask.DelaySeconds(0.01f);
+        if (InputBox != null) InputBox.AcceptsFocus = true;
+        InputBox?.Focus();
+        await GameTask.DelaySeconds(0.01f);
+        ScrollMessagesToBottom();
+    }
+
+    void CloseChat()
+    {
+        IsChatOpen = false;
+        if (InputBox != null)
+        {
+            InputBox.AcceptsFocus = false;
+            InputBox.Blur();
+        }
+        StateHasChanged();
+    }
+
+    public static (string text, bool isAction, bool isDoAction, bool handled) ProcessMessage(string raw)
+    {
+        raw = raw?.Trim();
+        if (string.IsNullOrWhiteSpace(raw))
+            return (raw, false, false, false);
+
+        if (raw.StartsWith("/me ", StringComparison.OrdinalIgnoreCase))
+        {
+            string action = raw[4..].Trim();
+            if (string.IsNullOrWhiteSpace(action))
+                return (raw, false, false, false);
+            return (action.ToLower(), true, false, true);
+        }
+
+        if (raw.StartsWith("/do ", StringComparison.OrdinalIgnoreCase))
+        {
+            string doText = raw[4..].Trim();
+            if (string.IsNullOrWhiteSpace(doText))
+                return (raw, false, false, false);
+
+            doText = char.ToUpper(doText[0]) + doText[1..];
+            if (!doText.EndsWith("."))
+                doText += ".";
+            return (doText, false, true, true);
+        }
+
+        return (raw, false, false, false);
+    }
+
+    void SubmitMessage()
+    {
+        var msg = InputBox.Text?.Trim();
+        if (string.IsNullOrWhiteSpace(msg))
+        {
+            CloseChat();
+            return;
+        }
+
+        var (processed, isAction, isDoAction, handled) = ProcessMessage(msg);
+        if (handled && string.IsNullOrWhiteSpace(processed))
+        {
+            InputBox.Text = "";
+            CloseChat();
+            return;
+        }
+
+        string toSend;
+        if (isAction)
+            toSend = "/me " + processed;
+        else if (isDoAction)
+            toSend = "/do " + processed;
+        else
+            toSend = processed;
+
+        SendMessageRpc(toSend);
+        InputBox.Text = "";
+        CloseChat();
+    }
+
+    [Rpc.Broadcast]
+    public static void SendMessageRpc(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+            return;
+
+        var sender = Rpc.Caller;
+        if (sender == null)
+            return;
+
+        AddMessage(sender.DisplayName, message);
+    }
+
+    public static void AddMessage(string player, string text)
+    {
+        if (Current == null) return;
+
+        var (processed, isAction, isDoAction, _) = ProcessMessage(text);
+
+        Current.Messages.Add(new ChatMessage
+        {
+            PlayerName = player,
+            Text = processed,
+            Time = DateTime.Now,
+            IsAction = isAction,
+            IsDoAction = isDoAction
+        });
+
+        while (Current.Messages.Count > MaxMessages)
+            Current.Messages.RemoveAt(0);
+
+        Current.StateHasChanged();
+        Current.ScrollMessagesToBottom();
+    }
+
+    public void ScrollMessagesToBottom()
+    {
+        MessagesPanel?.TryScrollToBottom();
+    }
+}
