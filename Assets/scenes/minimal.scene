@@ -573,7 +573,7 @@
       "__version": 2,
       "Flags": 0,
       "Name": "UI",
-      "Position": "-432.859863,-632.266479,594.813538",
+      "Position": "0,0,0",
       "Rotation": "0,0,0,1",
       "Scale": "1,1,1",
       "Tags": "",
@@ -638,6 +638,60 @@
             }
           ],
           "Children": []
+        },
+        {
+          "__guid": "6b63cb0d-0ab0-41cf-9f6d-dc85363d5fdb",
+          "__version": 2,
+          "Flags": 0,
+          "Name": "World",
+          "Position": "0,0,0",
+          "Rotation": "0,0,0,1",
+          "Scale": "1,1,1",
+          "Tags": "",
+          "Enabled": true,
+          "NetworkMode": 2,
+          "NetworkFlags": 0,
+          "NetworkOrphaned": 0,
+          "NetworkTransmit": true,
+          "OwnerTransfer": 1,
+          "Components": [
+            {
+              "__type": "Sandbox.Enitity.UI.InteractionUI",
+              "__guid": "e360ce88-7e19-4457-afa5-a14b586a6836",
+              "__enabled": true,
+              "Flags": 0,
+              "OnComponentDestroy": null,
+              "OnComponentDisabled": null,
+              "OnComponentEnabled": null,
+              "OnComponentFixedUpdate": null,
+              "OnComponentStart": null,
+              "OnComponentUpdate": null
+            },
+            {
+              "__type": "Sandbox.ScreenPanel",
+              "__guid": "13f8ac2d-4a82-4dbe-b6fe-1170b248118d",
+              "__enabled": true,
+              "Flags": 0,
+              "AutoScreenScale": true,
+              "OnComponentDestroy": null,
+              "OnComponentDisabled": null,
+              "OnComponentEnabled": null,
+              "OnComponentFixedUpdate": null,
+              "OnComponentStart": null,
+              "OnComponentUpdate": null,
+              "Opacity": 1,
+              "Scale": 1,
+              "ScaleStrategy": "ConsistentHeight",
+              "TargetCamera": {
+                "_type": "component",
+                "component_id": "cf3cbf96-22b6-4be4-a5d0-672a96c17f9f",
+                "go": "3ee1c9f4-07be-4e0b-8b23-67bee2d8ec8a",
+                "component_type": "CameraComponent"
+              },
+              "ZIndex": 100
+            }
+          ],
+          "Children": []
         }
       ]
     },
@@ -656,6 +710,14 @@
             },
             "Property": "Position",
             "Value": "72.1056061,122.095299,0"
+          },
+          {
+            "Target": {
+              "Type": "Component",
+              "IdValue": "9c8700cf-983c-43c6-83cc-29f567d2986c"
+            },
+            "Property": "DisplayName",
+            "Value": "Неизвестный предмет"
           }
         ],
         "MovedObjects": []
@@ -691,6 +753,14 @@
             },
             "Property": "Position",
             "Value": "111.971832,122.095299,0"
+          },
+          {
+            "Target": {
+              "Type": "Component",
+              "IdValue": "9c8700cf-983c-43c6-83cc-29f567d2986c"
+            },
+            "Property": "DisplayName",
+            "Value": "Бронежилет"
           }
         ],
         "MovedObjects": []
@@ -726,11 +796,6 @@
       "CustomBounds": false
     },
     "GameObjectSystems": {
-      "Sandbox.Clutter.ClutterGridSystem": {
-        "Storage": {
-          "$blob": "bc348680-c40f-41cb-b198-c2c8e78b7c29"
-        }
-      },
       "Sandbox.MovieMaker.MovieRecorderSystem": {
         "DisableClientRecording": false
       },

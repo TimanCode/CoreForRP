@@ -110,6 +110,7 @@
         "Amount": 1,
         "ArmorAmount": 100,
         "ArmorClothingItem": "models/citizen_clothes/vest/tactical_vest/models/tactical_vest_army.clothing",
+        "DisplayName": "Бронежиле",
         "ItemId": "tactical_vest",
         "OnComponentDestroy": null,
         "OnComponentDisabled": null,

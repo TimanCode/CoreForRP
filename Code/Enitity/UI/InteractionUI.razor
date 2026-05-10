@@ -1,0 +1,74 @@
+@using Sandbox;
+@using Sandbox.UI;
+@using System.Linq;
+@inherits PanelComponent
+
+<root style="left: @(ScreenX)%; top: @(ScreenY)%; opacity: @(Opacity);">
+    <div class="key-hint">E</div>
+    <div class="item-name">@ItemName</div>
+</root>
+
+@code {
+    private PlayerInteractor _localInteractor;
+
+    public float ScreenX { get; set; }
+    public float ScreenY { get; set; }
+    public float Opacity { get; set; }
+    public string ItemName { get; set; }
+
+    protected override void OnUpdate()
+    {
+        // 1. Поиск локального игрока
+        if ( _localInteractor == null || !_localInteractor.IsValid )
+        {
+            _localInteractor = Scene.GetAllComponents<PlayerInteractor>()
+                .FirstOrDefault( x => !x.IsProxy );
+            
+            Opacity = 0f;
+            StateHasChanged(); // Обновляем UI, чтобы скрыть его
+            return;
+        }
+
+        // 2. Если ничего не под прицелом — скрываем
+        if ( _localInteractor.HoveredObject == null || _localInteractor.HoveredInteractable == null )
+        {
+            if ( Opacity != 0f ) // Оптимизация: обновляем только если UI был виден
+            {
+                Opacity = 0f;
+                StateHasChanged();
+            }
+            return;
+        }
+
+        var cam = Scene.Camera;
+        if ( cam == null ) return;
+
+        var targetPos = _localInteractor.HoveredObject.WorldPosition + Vector3.Up * 20f;
+
+        // 3. Проверка направления (объект перед нами или за нами)
+        var directionToTarget = ( targetPos - cam.WorldPosition ).Normal;
+        var dot = directionToTarget.Dot( cam.WorldRotation.Forward );
+
+        if ( dot < 0 )
+        {
+            if ( Opacity != 0f )
+            {
+                Opacity = 0f;
+                StateHasChanged();
+            }
+            return;
+        }
+
+        // 4. Расчет позиции
+        var screenPixels = cam.PointToScreenPixels( targetPos );
+
+        ScreenX = ( screenPixels.x / Screen.Width ) * 100f;
+        ScreenY = ( screenPixels.y / Screen.Height ) * 100f;
+
+        Opacity = 1f;
+        ItemName = _localInteractor.HoveredInteractable.DisplayName;
+        
+        // Финальное обновление для отрисовки активного состояния
+        StateHasChanged();
+    }
+}

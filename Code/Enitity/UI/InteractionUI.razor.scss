@@ -1,0 +1,32 @@
+InteractionUI {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+
+    // Центрируем элемент относительно координат (ScreenX, ScreenY)
+    transform: translate(-50%, -50%);
+
+    transition: opacity 0.03s ease-in-out;
+    pointer-events: none;
+
+    .key-hint {
+        background-color: rgba(white, 0.9);
+        color: black;
+        font-family: Poppins, sans-serif;
+        font-weight: bold;
+        font-size: 16px;
+        padding: 4px 10px;
+        border-radius: 4px;
+        box-shadow: 0px 2px 5px rgba(black, 0.5);
+    }
+
+    .item-name {
+        color: white;
+        font-family: Poppins, sans-serif;
+        font-weight: 500;
+        font-size: 18px;
+        text-shadow: 1px 1px 3px black;
+    }
+}
