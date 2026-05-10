@@ -68,6 +68,32 @@
         "UseCollisionRules": false
       },
       {
+        "__type": "Sandbox.Dresser",
+        "__guid": "78fc27f6-f9df-4f05-9c52-363397bdd524",
+        "__enabled": true,
+        "Flags": 0,
+        "ApplyHeightScale": true,
+        "BodyTarget": {
+          "_type": "component",
+          "component_id": "70188594-cf17-43af-a560-225349e5cf29",
+          "go": "59b1c90f-19d1-41d0-b58c-29a3e7ab2de5",
+          "component_type": "SkinnedModelRenderer"
+        },
+        "Clothing": [],
+        "ManualAge": 0.5,
+        "ManualHeight": 0.5,
+        "ManualTint": 0.5,
+        "OnComponentDestroy": null,
+        "OnComponentDisabled": null,
+        "OnComponentEnabled": null,
+        "OnComponentFixedUpdate": null,
+        "OnComponentStart": null,
+        "OnComponentUpdate": null,
+        "RemoveUnownedItems": true,
+        "Source": "Manual",
+        "WorkshopItems": []
+      },
+      {
         "__type": "PlayerMovementControl",
         "__guid": "d4bb7eb6-546a-4628-b170-a9efda20dea7",
         "__enabled": true,

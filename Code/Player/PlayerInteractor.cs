@@ -18,7 +18,6 @@ public sealed class PlayerInteractor : Component
 	{
 		if ( Scene.Camera == null ) return;
 
-		// Пускаем луч прямо из центра глобальной камеры вперед
 		var startPos = Scene.Camera.WorldPosition;
 		var endPos = startPos + Scene.Camera.WorldRotation.Forward * InteractDistance;
 

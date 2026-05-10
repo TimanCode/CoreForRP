@@ -34,7 +34,7 @@ public sealed class PlayerCameraControl : Component
 		Rotation targetRotation = _angles.ToRotation();
 		Vector3 targetPosition = Target.WorldPosition + Offset + targetRotation.Backward * Distance;
 
-		// Плавное перемещение (WorldPosition вместо Transform.Position)
+		// Плавное перемещение
 		cam.WorldPosition = Vector3.SmoothDamp(
 			cam.WorldPosition,
 			targetPosition,
@@ -43,7 +43,7 @@ public sealed class PlayerCameraControl : Component
 			Time.Delta
 		);
 
-		// Вращение (WorldRotation вместо Transform.Rotation)
+		// Вращение
 		cam.WorldRotation = Rotation.LookAt( (Target.WorldPosition + Offset) - cam.WorldPosition, Vector3.Up );
 		
 		// Обновляем углы в скрипте движения для синхронизации головы

@@ -19,8 +19,7 @@ public sealed class PlayerMovementControl : Component
 	private bool _doJump;
 
 	[Sync] public bool IsCrouching { get; set; }
-	
-	// ★ НОВОЕ: Синхронизируем поворот тела по сети
+
 	[Sync] public Rotation BodyRotation { get; set; }
 
 	[Sync] public Angles EyeAngles { get; set; }
@@ -30,10 +29,9 @@ public sealed class PlayerMovementControl : Component
 		if ( !IsProxy )
 		{
 			HandleInput();
-			CalculateRotation(); // Считаем поворот только у себя
+			CalculateRotation();
 		}
 
-		// ★ ВАЖНО: Применяем поворот тела И анимации для всех (и для Proxy тоже)
 		ApplyRotation();
 		UpdateAnimation();
 	}
@@ -74,7 +72,6 @@ public sealed class PlayerMovementControl : Component
 		IsCrouching = Input.Down( "duck" );
 	}
 
-	// ★ НОВОЕ: Локальный расчет целевого поворота
 	private void CalculateRotation()
 	{
 		if ( Body == null ) return;
@@ -87,7 +84,6 @@ public sealed class PlayerMovementControl : Component
 		}
 	}
 
-	// ★ НОВОЕ: Применение поворота для всех клиентов
 	private void ApplyRotation()
 	{
 		if ( Body == null ) return;

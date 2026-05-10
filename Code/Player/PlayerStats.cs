@@ -99,7 +99,5 @@ public sealed class PlayerStats : Component
 	{
 		OnDeath?.Invoke();
 		Log.Info( $"{GameObject.Name} погиб." );
-		
-		// Здесь можно вызвать анимацию смерти или смену модели
 	}
 }
