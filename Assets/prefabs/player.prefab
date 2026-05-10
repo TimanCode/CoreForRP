@@ -79,7 +79,17 @@
           "go": "59b1c90f-19d1-41d0-b58c-29a3e7ab2de5",
           "component_type": "SkinnedModelRenderer"
         },
-        "Clothing": [],
+        "Clothing": [
+          {
+            "Clothing": "models/citizen_clothes/shirt/army_shirt/army_shirt.clothing"
+          },
+          {
+            "Clothing": "models/citizen_clothes/trousers/cargopants/cargo_pants_army.clothing"
+          },
+          {
+            "Clothing": "models/citizen_clothes/shoes/boots/army_boots.clothing"
+          }
+        ],
         "ManualAge": 0.5,
         "ManualHeight": 0.5,
         "ManualTint": 0.5,
@@ -161,6 +171,20 @@
         "OnComponentStart": null,
         "OnComponentUpdate": null,
         "Thirst": 100
+      },
+      {
+        "__type": "PlayerInventory",
+        "__guid": "7f2eb99b-f3b3-460b-8f02-b853b67098b9",
+        "__enabled": true,
+        "Flags": 0,
+        "GridHeight": 8,
+        "GridWidth": 8,
+        "OnComponentDestroy": null,
+        "OnComponentDisabled": null,
+        "OnComponentEnabled": null,
+        "OnComponentFixedUpdate": null,
+        "OnComponentStart": null,
+        "OnComponentUpdate": null
       }
     ],
     "Children": [
@@ -204,7 +228,7 @@
             "__enabled": true,
             "Flags": 0,
             "AnimationGraph": null,
-            "BodyGroups": 649,
+            "BodyGroups": 129,
             "BoneMergeTarget": null,
             "CreateAttachments": false,
             "CreateBoneObjects": false,
@@ -246,10 +270,10 @@
         ],
         "Children": [
           {
-            "__guid": "ee936c25-5fe1-4bd1-b4bc-1cc62f277f70",
+            "__guid": "19af47e8-cd59-4df7-a7da-be8a2f0d8aeb",
             "__version": 2,
             "Flags": 0,
-            "Name": "Clothing - y_front_pants_white",
+            "Name": "Clothing - army_shirt",
             "Position": "0,0,0",
             "Rotation": "0,0,0,1",
             "Scale": "1,1,1",
@@ -263,7 +287,7 @@
             "Components": [
               {
                 "__type": "Sandbox.SkinnedModelRenderer",
-                "__guid": "ff546a0a-4b4f-440f-97f2-d64ea177376d",
+                "__guid": "c3d38875-e531-4f24-90c0-5d72cb6583d3",
                 "__enabled": true,
                 "Flags": 0,
                 "AnimationGraph": null,
@@ -280,7 +304,145 @@
                 "MaterialGroup": null,
                 "MaterialOverride": null,
                 "Materials": null,
-                "Model": "models/citizen_clothes/underwear/y_front_pants/models/y_front_pants_m_human.vmdl",
+                "Model": "models/citizen_clothes/shirt/army_shirt/model/army_shirt_m_human.vmdl",
+                "Morphs": {},
+                "OnComponentDestroy": null,
+                "OnComponentDisabled": null,
+                "OnComponentEnabled": null,
+                "OnComponentFixedUpdate": null,
+                "OnComponentStart": null,
+                "OnComponentUpdate": null,
+                "Parameters": {
+                  "bools": {},
+                  "ints": {},
+                  "floats": {},
+                  "vectors": {},
+                  "rotations": {}
+                },
+                "PlaybackRate": 1,
+                "RenderOptions": {
+                  "GameLayer": true,
+                  "OverlayLayer": false,
+                  "BloomLayer": false,
+                  "AfterUILayer": false
+                },
+                "RenderType": "On",
+                "Sequence": {
+                  "Name": null,
+                  "Looping": true,
+                  "Blending": false
+                },
+                "Tint": "1,1,1,1",
+                "UseAnimGraph": true
+              }
+            ],
+            "Children": []
+          },
+          {
+            "__guid": "fef37136-02f1-4584-9690-0b6884ba0670",
+            "__version": 2,
+            "Flags": 0,
+            "Name": "Clothing - cargo_pants_army",
+            "Position": "0,0,0",
+            "Rotation": "0,0,0,1",
+            "Scale": "1,1,1",
+            "Tags": "clothing",
+            "Enabled": true,
+            "NetworkMode": 2,
+            "NetworkFlags": 0,
+            "NetworkOrphaned": 0,
+            "NetworkTransmit": true,
+            "OwnerTransfer": 1,
+            "Components": [
+              {
+                "__type": "Sandbox.SkinnedModelRenderer",
+                "__guid": "449d7f10-8176-4cb9-9d79-6f8518630175",
+                "__enabled": true,
+                "Flags": 0,
+                "AnimationGraph": null,
+                "BodyGroups": 18446744073709551615,
+                "BoneMergeTarget": {
+                  "_type": "component",
+                  "component_id": "70188594-cf17-43af-a560-225349e5cf29",
+                  "go": "59b1c90f-19d1-41d0-b58c-29a3e7ab2de5",
+                  "component_type": "SkinnedModelRenderer"
+                },
+                "CreateAttachments": false,
+                "CreateBoneObjects": false,
+                "LodOverride": null,
+                "MaterialGroup": null,
+                "MaterialOverride": null,
+                "Materials": null,
+                "Model": "models/citizen_clothes/trousers/cargopants/models/cargo_pants_m_human.vmdl",
+                "Morphs": {},
+                "OnComponentDestroy": null,
+                "OnComponentDisabled": null,
+                "OnComponentEnabled": null,
+                "OnComponentFixedUpdate": null,
+                "OnComponentStart": null,
+                "OnComponentUpdate": null,
+                "Parameters": {
+                  "bools": {},
+                  "ints": {},
+                  "floats": {},
+                  "vectors": {},
+                  "rotations": {}
+                },
+                "PlaybackRate": 1,
+                "RenderOptions": {
+                  "GameLayer": true,
+                  "OverlayLayer": false,
+                  "BloomLayer": false,
+                  "AfterUILayer": false
+                },
+                "RenderType": "On",
+                "Sequence": {
+                  "Name": null,
+                  "Looping": true,
+                  "Blending": false
+                },
+                "Tint": "1,1,1,1",
+                "UseAnimGraph": true
+              }
+            ],
+            "Children": []
+          },
+          {
+            "__guid": "a316cd52-892b-4ec1-9346-facb225463cb",
+            "__version": 2,
+            "Flags": 0,
+            "Name": "Clothing - army_boots",
+            "Position": "0,0,0",
+            "Rotation": "0,0,0,1",
+            "Scale": "1,1,1",
+            "Tags": "clothing",
+            "Enabled": true,
+            "NetworkMode": 2,
+            "NetworkFlags": 0,
+            "NetworkOrphaned": 0,
+            "NetworkTransmit": true,
+            "OwnerTransfer": 1,
+            "Components": [
+              {
+                "__type": "Sandbox.SkinnedModelRenderer",
+                "__guid": "956f16ad-fc9d-4a32-beaa-bc4b331e10d8",
+                "__enabled": true,
+                "Flags": 0,
+                "AnimationGraph": null,
+                "BodyGroups": 18446744073709551615,
+                "BoneMergeTarget": {
+                  "_type": "component",
+                  "component_id": "70188594-cf17-43af-a560-225349e5cf29",
+                  "go": "59b1c90f-19d1-41d0-b58c-29a3e7ab2de5",
+                  "component_type": "SkinnedModelRenderer"
+                },
+                "CreateAttachments": false,
+                "CreateBoneObjects": false,
+                "LodOverride": null,
+                "MaterialGroup": null,
+                "MaterialOverride": null,
+                "Materials": null,
+                "Model": "models/citizen_clothes/shoes/boots/models/army_boots_m_human.vmdl",
                 "Morphs": {},
                 "OnComponentDestroy": null,
                 "OnComponentDisabled": null,

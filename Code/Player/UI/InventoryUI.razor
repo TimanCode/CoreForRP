@@ -1,0 +1,158 @@
+@using Sandbox;
+@using Sandbox.UI;
+@using System;
+@using System.Linq;
+@inherits PanelComponent
+
+@* <root> всегда тут, но класс "is-open" появляется только при открытии *@
+<root class=@(IsOpen && _localInventory != null ? "is-open" : "")>
+	
+	@* А вот саму сетку и предметы рисуем только когда открыто *@
+	@if ( IsOpen && _localInventory != null )
+	{
+		<div class="inventory" @ref="inventoryRoot" onmousemove=@OnMouseMove onmouseup=@OnMouseUp>
+			<div class="grid">
+				@* Отрисовка клеток *@
+				@for ( int y = 0; y < _localInventory.GridHeight; y++ )
+				{
+					<div class="row">
+						@for ( int x = 0; x < _localInventory.GridWidth; x++ )
+						{
+							<div class="cell"></div>
+						}
+					</div>
+				}
+			</div>
+
+			@* Отрисовка предметов *@
+			@foreach ( var item in _localInventory.Items )
+			{
+				if ( draggingItemId == item.InstanceId ) continue;
+
+				int width = item.Rotated ? item.Height : item.Width;
+				int height = item.Rotated ? item.Width : item.Height;
+
+				<div class="item"
+					 style="left:@(item.X * CellSize)px; top:@(item.Y * CellSize)px; width:@(width * CellSize)px; height:@(height * CellSize)px;"
+					 onmousedown=@(() => StartDrag( item.InstanceId ))>
+					
+					<div class="item-icon" style="background-image:url('thumb:@(item.IconPath)')"></div>
+				</div>
+			}
+
+			@* Отрисовка перетаскиваемого предмета *@
+			@if ( DraggedItem != null )
+			{
+				int width = DraggedItem.Value.Rotated ? DraggedItem.Value.Height : DraggedItem.Value.Width;
+				int height = DraggedItem.Value.Rotated ? DraggedItem.Value.Width : DraggedItem.Value.Height;
+
+				<div class="item dragging" style="left:@(dragPos.x)px; top:@(dragPos.y)px; width:@(width * CellSize)px; height:@(height * CellSize)px;">
+					<div class="item-icon" style="background-image:url('thumb:@(DraggedItem.Value.IconPath)')"></div>
+				</div>
+			}
+		</div>
+	}
+</root>
+
+@code {
+	[Property] public int CellSize { get; set; } = 50;
+
+	public bool IsOpen { get; set; } = false;
+	private PlayerInventory _localInventory;
+
+	private Panel inventoryRoot;
+	private Guid? draggingItemId;
+	private Vector2 dragPos;
+	private Vector2 dragOffset;
+
+	private InventoryItemState? DraggedItem => draggingItemId.HasValue ? FindItem( draggingItemId.Value ) : null;
+
+	protected override void OnUpdate()
+	{
+		if ( _localInventory == null || !_localInventory.IsValid )
+		{
+			_localInventory = Scene.GetAllComponents<PlayerInventory>().FirstOrDefault( x => !x.IsProxy );
+		}
+
+		if ( Input.Pressed( "score" ) )
+		{
+			IsOpen = !IsOpen;
+			
+			if ( IsOpen )
+			{
+				StopDrag(); 
+			}
+			// Принудительно обновляем UI при нажатии кнопки
+			StateHasChanged(); 
+		}
+
+		Panel.Style.PointerEvents = IsOpen ? PointerEvents.All : PointerEvents.None;
+	}
+
+	private InventoryItemState? FindItem( Guid id )
+	{
+		if ( _localInventory == null ) return null;
+		foreach ( var item in _localInventory.Items )
+		{
+			if ( item.InstanceId == id ) return item;
+		}
+		return null;
+	}
+
+	void StartDrag( Guid instanceId )
+	{
+		if ( _localInventory == null || inventoryRoot == null ) return;
+		var item = FindItem( instanceId );
+		if ( item == null ) return;
+
+		draggingItemId = instanceId;
+
+		float itemX = item.Value.X * CellSize;
+		float itemY = item.Value.Y * CellSize;
+		dragPos = new Vector2( itemX, itemY );
+
+		float scale = inventoryRoot.ScaleFromScreen;
+		Vector2 localMouse = (Mouse.Position - inventoryRoot.Box.Rect.Position) * scale;
+		dragOffset = localMouse - dragPos;
+
+		StateHasChanged();
+	}
+
+	void OnMouseMove( object _ )
+	{
+		if ( draggingItemId == null || inventoryRoot == null ) return;
+
+		float scale = inventoryRoot.ScaleFromScreen;
+		Vector2 localMouse = (Mouse.Position - inventoryRoot.Box.Rect.Position) * scale;
+		dragPos = localMouse - dragOffset;
+
+		dragPos.x = MathF.Max( 0, dragPos.x );
+		dragPos.y = MathF.Max( 0, dragPos.y );
+
+		StateHasChanged();
+	}
+	
+	void OnMouseUp( object _ )
+	{
+		if ( draggingItemId == null ) return;
+		var item = DraggedItem;
+
+		if ( item != null && _localInventory != null )
+		{
+			int cellX = (int)MathF.Round( dragPos.x / CellSize ); 
+			int cellY = (int)MathF.Round( dragPos.y / CellSize );
+			cellX = Math.Max( 0, cellX );
+			cellY = Math.Max( 0, cellY );
+
+			_localInventory.TryMoveItem( item.Value.InstanceId, cellX, cellY, item.Value.Rotated );
+		}
+
+		StopDrag();
+	}
+
+	void StopDrag()
+	{
+		draggingItemId = null;
+		StateHasChanged();
+	}
+}

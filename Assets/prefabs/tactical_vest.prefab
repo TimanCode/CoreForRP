@@ -26,7 +26,7 @@
         "MaterialGroup": null,
         "MaterialOverride": null,
         "Materials": null,
-        "Model": "models/citizen_clothes/vest/tactical_vest/models/tactical_vest_army_m_human.vmdl",
+        "Model": "models/citizen_clothes/vest/tactical_vest/models/tactical_vest_m_human.vmdl",
         "OnComponentDestroy": null,
         "OnComponentDisabled": null,
         "OnComponentEnabled": null,
@@ -109,8 +109,11 @@
         "Flags": 0,
         "Amount": 1,
         "ArmorAmount": 100,
-        "ArmorClothingItem": "models/citizen_clothes/vest/tactical_vest/models/tactical_vest_army.clothing",
+        "ArmorClothingItem": "models/bad frak/bad frak.clothing",
         "DisplayName": "Бронежиле",
+        "GridHeight": 2,
+        "GridWidth": 2,
+        "IconPath": "models/citizen_clothes/vest/tactical_vest/models/tactical_vest_m_human.vmdl_c",
         "ItemId": "tactical_vest",
         "OnComponentDestroy": null,
         "OnComponentDisabled": null,
@@ -148,6 +151,8 @@
   "MenuPath": null,
   "MenuIcon": null,
   "DontBreakAsTemplate": false,
-  "__references": [],
+  "__references": [
+    "danivisit.badfrak#129326"
+  ],
   "__version": 2
 }

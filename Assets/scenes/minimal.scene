@@ -643,7 +643,7 @@
           "__guid": "6b63cb0d-0ab0-41cf-9f6d-dc85363d5fdb",
           "__version": 2,
           "Flags": 0,
-          "Name": "World",
+          "Name": "EntityUI",
           "Position": "0,0,0",
           "Rotation": "0,0,0,1",
           "Scale": "1,1,1",
@@ -692,6 +692,61 @@
             }
           ],
           "Children": []
+        },
+        {
+          "__guid": "2a0c752b-bba2-4fca-8376-36bc3574b187",
+          "__version": 2,
+          "Flags": 0,
+          "Name": "Screen",
+          "Position": "0,0,0",
+          "Rotation": "0,0,0,1",
+          "Scale": "1,1,1",
+          "Tags": "",
+          "Enabled": true,
+          "NetworkMode": 2,
+          "NetworkFlags": 0,
+          "NetworkOrphaned": 0,
+          "NetworkTransmit": true,
+          "OwnerTransfer": 1,
+          "Components": [
+            {
+              "__type": "Sandbox.ScreenPanel",
+              "__guid": "1e187969-163c-43f8-a40e-b2980fa1ad5a",
+              "__enabled": true,
+              "Flags": 0,
+              "AutoScreenScale": true,
+              "OnComponentDestroy": null,
+              "OnComponentDisabled": null,
+              "OnComponentEnabled": null,
+              "OnComponentFixedUpdate": null,
+              "OnComponentStart": null,
+              "OnComponentUpdate": null,
+              "Opacity": 1,
+              "Scale": 1,
+              "ScaleStrategy": "ConsistentHeight",
+              "TargetCamera": {
+                "_type": "component",
+                "component_id": "cf3cbf96-22b6-4be4-a5d0-672a96c17f9f",
+                "go": "3ee1c9f4-07be-4e0b-8b23-67bee2d8ec8a",
+                "component_type": "CameraComponent"
+              },
+              "ZIndex": 100
+            },
+            {
+              "__type": "Sandbox.Player.UI.InventoryUI",
+              "__guid": "7ec0ac10-30e4-40b1-8495-9f34a976cd22",
+              "__enabled": true,
+              "Flags": 0,
+              "CellSize": 50,
+              "OnComponentDestroy": null,
+              "OnComponentDisabled": null,
+              "OnComponentEnabled": null,
+              "OnComponentFixedUpdate": null,
+              "OnComponentStart": null,
+              "OnComponentUpdate": null
+            }
+          ],
+          "Children": []
         }
       ]
     },
@@ -717,7 +772,7 @@
               "IdValue": "9c8700cf-983c-43c6-83cc-29f567d2986c"
             },
             "Property": "DisplayName",
-            "Value": "Неизвестный предмет"
+            "Value": "Бронежилет"
           }
         ],
         "MovedObjects": []
@@ -802,6 +857,11 @@
       "Sandbox.SelectionSetsSystem": {
         "Data": {
           "SelectionSets": []
+        }
+      },
+      "Sandbox.Clutter.ClutterGridSystem": {
+        "Storage": {
+          "$blob": "9873d901-8bb5-4429-80b4-410e2a5bfcdc"
         }
       }
     }
