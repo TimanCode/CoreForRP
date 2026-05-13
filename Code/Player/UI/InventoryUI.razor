@@ -6,153 +6,176 @@
 
 @* <root> всегда тут, но класс "is-open" появляется только при открытии *@
 <root class=@(IsOpen && _localInventory != null ? "is-open" : "")>
-	
-	@* А вот саму сетку и предметы рисуем только когда открыто *@
-	@if ( IsOpen && _localInventory != null )
-	{
-		<div class="inventory" @ref="inventoryRoot" onmousemove=@OnMouseMove onmouseup=@OnMouseUp>
-			<div class="grid">
-				@* Отрисовка клеток *@
-				@for ( int y = 0; y < _localInventory.GridHeight; y++ )
-				{
-					<div class="row">
-						@for ( int x = 0; x < _localInventory.GridWidth; x++ )
-						{
-							<div class="cell"></div>
-						}
-					</div>
-				}
-			</div>
+    
+    @* А вот саму сетку и предметы рисуем только когда открыто *@
+    @if ( IsOpen && _localInventory != null )
+    {
+        <div class="inventory" @ref="inventoryRoot" onmousemove=@OnMouseMove onmouseup=@OnMouseUp>
+            <div class="grid">
+                @* Отрисовка клеток *@
+                @for ( int y = 0; y < _localInventory.GridHeight; y++ )
+                {
+                    <div class="row">
+                        @for ( int x = 0; x < _localInventory.GridWidth; x++ )
+                        {
+                            <div class="cell"></div>
+                        }
+                    </div>
+                }
+            </div>
 
-			@* Отрисовка предметов *@
-			@foreach ( var item in _localInventory.Items )
-			{
-				if ( draggingItemId == item.InstanceId ) continue;
+            @* Отрисовка предметов *@
+            @foreach ( var item in _localInventory.Items )
+            {
+                if ( draggingItemId == item.InstanceId ) continue;
 
-				int width = item.Rotated ? item.Height : item.Width;
-				int height = item.Rotated ? item.Width : item.Height;
+                int width = item.Rotated ? item.Height : item.Width;
+                int height = item.Rotated ? item.Width : item.Height;
 
-				<div class="item"
-					 style="left:@(item.X * CellSize)px; top:@(item.Y * CellSize)px; width:@(width * CellSize)px; height:@(height * CellSize)px;"
-					 onmousedown=@(() => StartDrag( item.InstanceId ))>
-					
-					<div class="item-icon" style="background-image:url('thumb:@(item.IconPath)')"></div>
-				</div>
-			}
+                <div class="item"
+                     style="left:@(item.X * CellSize)px; top:@(item.Y * CellSize)px; width:@(width * CellSize)px; height:@(height * CellSize)px;"
+                     @* Передаем базовый PanelEvent 'e', чтобы не было ошибки каста *@
+                     onmousedown=@( ( PanelEvent e ) => StartDrag( e, item.InstanceId ) )>
+                    
+                    <div class="item-icon" style="background-image:url('thumb:@(item.IconPath)')"></div>
+                </div>
+            }
 
-			@* Отрисовка перетаскиваемого предмета *@
-			@if ( DraggedItem != null )
-			{
-				int width = DraggedItem.Value.Rotated ? DraggedItem.Value.Height : DraggedItem.Value.Width;
-				int height = DraggedItem.Value.Rotated ? DraggedItem.Value.Width : DraggedItem.Value.Height;
+            @* Отрисовка перетаскиваемого предмета *@
+            @if ( DraggedItem != null )
+            {
+                int width = DraggedItem.Value.Rotated ? DraggedItem.Value.Height : DraggedItem.Value.Width;
+                int height = DraggedItem.Value.Rotated ? DraggedItem.Value.Width : DraggedItem.Value.Height;
 
-				<div class="item dragging" style="left:@(dragPos.x)px; top:@(dragPos.y)px; width:@(width * CellSize)px; height:@(height * CellSize)px;">
-					<div class="item-icon" style="background-image:url('thumb:@(DraggedItem.Value.IconPath)')"></div>
-				</div>
-			}
-		</div>
-	}
+                @* ВАЖНО: добавил pointer-events: none, чтобы предмет не перекрывал мышку при перетаскивании *@
+                <div class="item dragging" style="left:@(dragPos.x)px; top:@(dragPos.y)px; width:@(width * CellSize)px; height:@(height * CellSize)px; pointer-events: none;">
+                    <div class="item-icon" style="background-image:url('thumb:@(DraggedItem.Value.IconPath)')"></div>
+                </div>
+            }
+        </div>
+    }
 </root>
 
 @code {
-	[Property] public int CellSize { get; set; } = 50;
+    [Property] public int CellSize { get; set; } = 50;
 
-	public bool IsOpen { get; set; } = false;
-	private PlayerInventory _localInventory;
+    public bool IsOpen { get; set; } = false;
+    private PlayerInventory _localInventory;
 
-	private Panel inventoryRoot;
-	private Guid? draggingItemId;
-	private Vector2 dragPos;
-	private Vector2 dragOffset;
+    private Panel inventoryRoot;
+    private Guid? draggingItemId;
+    private Vector2 dragPos;
+    private Vector2 dragOffset;
 
-	private InventoryItemState? DraggedItem => draggingItemId.HasValue ? FindItem( draggingItemId.Value ) : null;
+    private InventoryItemState? DraggedItem => draggingItemId.HasValue ? FindItem( draggingItemId.Value ) : null;
 
-	protected override void OnUpdate()
-	{
-		if ( _localInventory == null || !_localInventory.IsValid )
-		{
-			_localInventory = Scene.GetAllComponents<PlayerInventory>().FirstOrDefault( x => !x.IsProxy );
-		}
+    protected override void OnUpdate()
+    {
+        if ( _localInventory == null || !_localInventory.IsValid )
+        {
+            _localInventory = Scene.GetAllComponents<PlayerInventory>().FirstOrDefault( x => !x.IsProxy );
+        }
 
-		if ( Input.Pressed( "score" ) )
-		{
-			IsOpen = !IsOpen;
-			
-			if ( IsOpen )
-			{
-				StopDrag(); 
-			}
-			// Принудительно обновляем UI при нажатии кнопки
-			StateHasChanged(); 
-		}
+        if ( Input.Pressed( "score" ) )
+        {
+            IsOpen = !IsOpen;
+            
+            if ( IsOpen )
+            {
+                StopDrag(); 
+            }
+            StateHasChanged(); 
+        }
 
-		Panel.Style.PointerEvents = IsOpen ? PointerEvents.All : PointerEvents.None;
-	}
+        Panel.Style.PointerEvents = IsOpen ? PointerEvents.All : PointerEvents.None;
+    }
 
-	private InventoryItemState? FindItem( Guid id )
-	{
-		if ( _localInventory == null ) return null;
-		foreach ( var item in _localInventory.Items )
-		{
-			if ( item.InstanceId == id ) return item;
-		}
-		return null;
-	}
+    private InventoryItemState? FindItem( Guid id )
+    {
+        if ( _localInventory == null ) return null;
+        foreach ( var item in _localInventory.Items )
+        {
+            if ( item.InstanceId == id ) return item;
+        }
+        return null;
+    }
 
-	void StartDrag( Guid instanceId )
-	{
-		if ( _localInventory == null || inventoryRoot == null ) return;
-		var item = FindItem( instanceId );
-		if ( item == null ) return;
+    void StartDrag( PanelEvent e, Guid instanceId )
+    {
+        // Твоя логика проверки: если это событие мыши и кнопка НЕ левая - выходим
+        if ( e is MousePanelEvent mouseEvent )
+        {
+            if ( mouseEvent.MouseButton != MouseButtons.Left )
+            {
+                return;
+            }
+        }
+        else
+        {
+            return; // Если это вообще не мышь, тоже отменяем
+        }
 
-		draggingItemId = instanceId;
+        if ( _localInventory == null || inventoryRoot == null ) return;
+        var item = FindItem( instanceId );
+        if ( item == null ) return;
 
-		float itemX = item.Value.X * CellSize;
-		float itemY = item.Value.Y * CellSize;
-		dragPos = new Vector2( itemX, itemY );
+        draggingItemId = instanceId;
 
-		float scale = inventoryRoot.ScaleFromScreen;
-		Vector2 localMouse = (Mouse.Position - inventoryRoot.Box.Rect.Position) * scale;
-		dragOffset = localMouse - dragPos;
+        float itemX = item.Value.X * CellSize;
+        float itemY = item.Value.Y * CellSize;
+        dragPos = new Vector2( itemX, itemY );
 
-		StateHasChanged();
-	}
+        float scale = inventoryRoot.ScaleFromScreen;
+        Vector2 localMouse = (Mouse.Position - inventoryRoot.Box.Rect.Position) * scale;
+        dragOffset = localMouse - dragPos;
 
-	void OnMouseMove( object _ )
-	{
-		if ( draggingItemId == null || inventoryRoot == null ) return;
+        StateHasChanged();
+    }
 
-		float scale = inventoryRoot.ScaleFromScreen;
-		Vector2 localMouse = (Mouse.Position - inventoryRoot.Box.Rect.Position) * scale;
-		dragPos = localMouse - dragOffset;
+    void OnMouseMove( PanelEvent _ ) // Сменил object на PanelEvent
+    {
+        if ( draggingItemId == null || inventoryRoot == null ) return;
 
-		dragPos.x = MathF.Max( 0, dragPos.x );
-		dragPos.y = MathF.Max( 0, dragPos.y );
+        float scale = inventoryRoot.ScaleFromScreen;
+        Vector2 localMouse = (Mouse.Position - inventoryRoot.Box.Rect.Position) * scale;
+        dragPos = localMouse - dragOffset;
 
-		StateHasChanged();
-	}
-	
-	void OnMouseUp( object _ )
-	{
-		if ( draggingItemId == null ) return;
-		var item = DraggedItem;
+        dragPos.x = MathF.Max( 0, dragPos.x );
+        dragPos.y = MathF.Max( 0, dragPos.y );
 
-		if ( item != null && _localInventory != null )
-		{
-			int cellX = (int)MathF.Round( dragPos.x / CellSize ); 
-			int cellY = (int)MathF.Round( dragPos.y / CellSize );
-			cellX = Math.Max( 0, cellX );
-			cellY = Math.Max( 0, cellY );
+        StateHasChanged();
+    }
+    
+    void OnMouseUp( PanelEvent _ )
+    {
+        // Твоя логика проверки: если отпустили НЕ левую кнопку, просто выходим
+        if ( _ is MousePanelEvent mouseEvent )
+        {
+            if ( mouseEvent.MouseButton != MouseButtons.Left )
+            {
+                return;
+            }
+        }
 
-			_localInventory.TryMoveItem( item.Value.InstanceId, cellX, cellY, item.Value.Rotated );
-		}
+        if ( draggingItemId == null ) return;
+        var item = DraggedItem;
 
-		StopDrag();
-	}
+        if ( item != null && _localInventory != null )
+        {
+            int cellX = (int)MathF.Round( dragPos.x / CellSize ); 
+            int cellY = (int)MathF.Round( dragPos.y / CellSize );
+            cellX = Math.Max( 0, cellX );
+            cellY = Math.Max( 0, cellY );
 
-	void StopDrag()
-	{
-		draggingItemId = null;
-		StateHasChanged();
-	}
+            _localInventory.TryMoveItem( item.Value.InstanceId, cellX, cellY, item.Value.Rotated );
+        }
+
+        StopDrag();
+    }
+
+    void StopDrag()
+    {
+        draggingItemId = null;
+        StateHasChanged();
+    }
 }
