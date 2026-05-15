@@ -84,30 +84,10 @@
         "Flags": 0,
         "ArmorAmount": 100,
         "ArmorClothingItem": "models/bad frak/bad frak.clothing",
-        "DisplayName": "Неизвестный предмет",
-        "GridHeight": 3,
-        "GridWidth": 2,
-        "IconPath": "models/editor/axis_helper.vmdl_c",
-        "ItemPrefab": {
-          "_type": "gameobject",
-          "prefab": "prefabs/tactical_vest.prefab"
-        },
-        "OnComponentDestroy": null,
-        "OnComponentDisabled": null,
-        "OnComponentEnabled": null,
-        "OnComponentFixedUpdate": null,
-        "OnComponentStart": null,
-        "OnComponentUpdate": null
-      },
-      {
-        "__type": "BasePickup",
-        "__guid": "bb026c2f-9166-45d9-a0e2-fd77a87e5dda",
-        "__enabled": false,
-        "Flags": 0,
         "DisplayName": "Бронежилет",
         "GridHeight": 3,
         "GridWidth": 2,
-        "IconPath": "models/citizen_clothes/vest/tactical_vest/models/tactical_vest_army_m_human.vmdl_c",
+        "IconPath": "models/citizen_clothes/vest/tactical_vest/models/tactical_vest_m_human.vmdl_c",
         "ItemPrefab": {
           "_type": "gameobject",
           "prefab": "prefabs/tactical_vest.prefab"

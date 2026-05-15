@@ -1,5 +1,7 @@
 using Sandbox;
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 public sealed class PlayerStats : Component
 {
@@ -12,14 +14,12 @@ public sealed class PlayerStats : Component
 	[Property, Sync, Group( "Survival" )] public float Hunger { get; set; } = 100f;
 	[Property, Sync, Group( "Survival" )] public float Thirst { get; set; } = 100f;
 
-	/// <summary>
-	/// Событие смерти для вызова логики на клиенте (например, UI или звуки)
-	/// </summary>
+	private bool _isDead = false;
+
 	public Action OnDeath { get; set; }
 
 	protected override void OnUpdate()
 	{
-		// Логика постепенного голода/жажды только на стороне хоста
 		if ( !IsProxy && Networking.IsHost )
 		{
 			TickSurvivalStats();
@@ -28,28 +28,21 @@ public sealed class PlayerStats : Component
 
 	private void TickSurvivalStats()
 	{
-		// Уменьшаем показатели со временем
 		Hunger = (Hunger - 0.01f * Time.Delta).Clamp( 0, 100 );
 		Thirst = (Thirst - 0.02f * Time.Delta).Clamp( 0, 100 );
 
-		// Если игрок умирает от голода
 		if ( Hunger <= 0 || Thirst <= 0 )
 		{
 			TakeDamage( 1f * Time.Delta );
 		}
 	}
 
-	/// <summary>
-	/// Безопасное получение урона. Влияет на броню, затем на здоровье.
-	/// </summary>
 	public void TakeDamage( float damage )
 	{
-		// Только хост имеет право изменять здоровье
-		if ( IsProxy ) return;
+		if ( IsProxy || _isDead ) return;
 
 		if ( Armor > 0 )
 		{
-			// 70% урона в броню, 30% в тело
 			float armorDamage = damage * 0.7f;
 			float healthDamage = damage * 0.3f;
 
@@ -60,7 +53,6 @@ public sealed class PlayerStats : Component
 			}
 			else
 			{
-				// Если брони меньше, чем урона
 				float leftover = armorDamage - Armor;
 				Armor = 0;
 				Health -= (healthDamage + leftover);
@@ -73,8 +65,9 @@ public sealed class PlayerStats : Component
 
 		Health = Health.Clamp( 0, MaxHealth );
 
-		if ( Health <= 0 )
+		if ( Health <= 0 && !_isDead )
 		{
+			_isDead = true; 
 			BroadcastDeath();
 		}
 	}
@@ -85,48 +78,119 @@ public sealed class PlayerStats : Component
 		Armor = (Armor + amount).Clamp( 0, MaxArmor );
 	}
 
-	public void AddHealth( float amount )
-	{
-		if ( IsProxy ) return;
-		Health = (Health + amount).Clamp( 0, MaxHealth );
-	}
-
 	[Rpc.Broadcast]
-	public void EquipArmorVisualRpc( int clothingResourceId )
+	public void EquipArmorVisualRpc( string clothingPath )
 	{
-		// 1. Восстанавливаем предмет одежды из ID
-		var armorClothing = ResourceLibrary.Get<Clothing>( clothingResourceId );
-		if ( armorClothing == null )
-		{
-			Log.Warning( "Броня не найдена по ID!" );
-			return;
-		}
+		var armorClothing = ResourceLibrary.Get<Clothing>( clothingPath );
+		if ( armorClothing == null ) return;
 
-		// 2. Находим основную модель игрока
 		var playerRenderer = Components.Get<SkinnedModelRenderer>( FindMode.EverythingInSelfAndDescendants );
 		if ( playerRenderer == null ) return;
 
-		// 3. Создаем дочерний объект специально для визуала брони
-		var armorObj = new GameObject( true, "VisualArmor" );
-		armorObj.SetParent( playerRenderer.GameObject );
+		// Удаляем старую броню по имени
+		foreach ( var child in GameObject.Children.Where( x => x.Name == "VisualArmor" ).ToList() )
+		{
+			child.Destroy();
+		}
 
-		// 4. Добавляем рендерер и привязываем его к костям (BoneMerge)
+		var armorObj = new GameObject( true, "VisualArmor" );
+		armorObj.SetParent( GameObject ); 
+
 		var armorRenderer = armorObj.Components.Create<SkinnedModelRenderer>();
-		
 		if ( !string.IsNullOrEmpty( armorClothing.Model ) )
 		{
 			armorRenderer.Model = Model.Load( armorClothing.Model );
-			armorRenderer.BoneMergeTarget = playerRenderer; 
+			armorRenderer.BoneMergeTarget = playerRenderer;
 		}
 	}
 
-	/// <summary>
-	/// Оповещаем всех о смерти игрока
-	/// </summary>
 	[Rpc.Broadcast]
-	private void BroadcastDeath()
+private void BroadcastDeath()
+{
+    OnDeath?.Invoke();
+    
+    if ( Networking.IsHost )
+    {
+        CreateRagdoll();
+    }
+
+    // 1. Выключаем все визуальные части
+    var allRenderers = GameObject.Components.GetAll<SkinnedModelRenderer>( FindMode.EverythingInSelfAndDescendants );
+    foreach ( var r in allRenderers )
+    {
+        r.Enabled = false;
+    }
+
+    // 2. ОТКЛЮЧАЕМ УПРАВЛЕНИЕ
+    // Ищем ваш скрипт передвижения и выключаем его
+    var movement = GameObject.Components.Get<PlayerMovementControl>();
+    if ( movement != null ) 
+    {
+        movement.Enabled = false;
+    }
+
+    // 3. ОТКЛЮЧАЕМ КОЛЛИЗИИ
+    // CharacterController продолжает работать, даже если модель скрыта.
+    // Его нужно выключить, чтобы игрок перестал "существовать" физически.
+    var controller = GameObject.Components.Get<CharacterController>();
+    if ( controller != null )
+    {
+        controller.Enabled = false;
+    }
+}
+
+	private void CreateRagdoll()
 	{
-		OnDeath?.Invoke();
-		Log.Info( $"{GameObject.Name} погиб." );
+		// 1. Создаем пустой объект трупа
+		var ragdollObj = new GameObject( true, $"Ragdoll_{GameObject.Name}" );
+		ragdollObj.Transform.World = GameObject.Transform.World;
+
+		// 2. Находим главный рендерер (тело игрока)
+		var playerBodyRenderer = Components.Get<SkinnedModelRenderer>( FindMode.EverythingInSelf );
+		if ( playerBodyRenderer == null ) 
+			playerBodyRenderer = Components.Get<SkinnedModelRenderer>( FindMode.EverythingInSelfAndDescendants );
+
+		// Создаем главный рендерер на регдолле
+		var ragdollBodyRenderer = ragdollObj.Components.Create<SkinnedModelRenderer>();
+		if ( playerBodyRenderer != null )
+		{
+			ragdollBodyRenderer.Model = playerBodyRenderer.Model;
+			ragdollBodyRenderer.CopyFrom( playerBodyRenderer ); // Копируем позу и бодигруппы (дырки в теле)
+		}
+
+		// 3. Создаем физику
+		var physics = ragdollObj.Components.Create<ModelPhysics>();
+		physics.Renderer = ragdollBodyRenderer;
+		physics.Enabled = true;
+
+		// 4. ПЕРЕНОСИМ ВСЮ ОДЕЖДУ (и все дочерние меши)
+		// Находим ВООБЩЕ ВСЕ рендереры на игроке (включая VisualArmor)
+		var allPlayerRenderers = GameObject.Components.GetAll<SkinnedModelRenderer>( FindMode.EverythingInSelfAndDescendants );
+
+		foreach ( var renderer in allPlayerRenderers )
+		{
+			// Пропускаем основное тело, мы его уже сделали
+			if ( renderer == playerBodyRenderer ) continue;
+			if ( renderer.Model == null ) continue;
+
+			// Создаем копию этой части одежды для регдолла
+			var clothingPart = new GameObject( true, "Ragdoll_Clothing_Part" );
+			clothingPart.SetParent( ragdollObj );
+			
+			var clothingRenderer = clothingPart.Components.Create<SkinnedModelRenderer>();
+			clothingRenderer.Model = renderer.Model;
+			
+			// ПРИВЯЗЫВАЕМ к физическому телу регдолла
+			clothingRenderer.BoneMergeTarget = ragdollBodyRenderer;
+		}
+
+		ragdollObj.NetworkSpawn();
+		_ = DeleteAfterDelay( ragdollObj, 30f );
+	}
+
+	private async Task DeleteAfterDelay( GameObject obj, float delay )
+	{
+		await Task.DelaySeconds( delay );
+		if ( obj.IsValid ) obj.Destroy();
 	}
 }

@@ -14,8 +14,8 @@ public sealed class ArmorPickup : BasePickup
 
 			if ( ArmorClothingItem != null )
 			{
-				// Передаем уникальный числовой ID ресурса через сеть
-				stats.EquipArmorVisualRpc( ArmorClothingItem.ResourceId );
+				// Передаем строку (ResourcePath)
+				stats.EquipArmorVisualRpc( ArmorClothingItem.ResourcePath );
 			}
 		}
 	}
