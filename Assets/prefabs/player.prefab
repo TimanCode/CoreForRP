@@ -177,7 +177,7 @@
         "__guid": "7f2eb99b-f3b3-460b-8f02-b853b67098b9",
         "__enabled": true,
         "Flags": 0,
-        "GridHeight": 8,
+        "GridHeight": 20,
         "GridWidth": 8,
         "OnComponentDestroy": null,
         "OnComponentDisabled": null,
@@ -270,7 +270,7 @@
         ],
         "Children": [
           {
-            "__guid": "e691a9da-299e-4722-83b5-d1d6db72eefe",
+            "__guid": "102c9697-d530-4905-b8a8-a096c7b4fd3b",
             "__version": 2,
             "Flags": 0,
             "Name": "Clothing - army_shirt",
@@ -287,7 +287,7 @@
             "Components": [
               {
                 "__type": "Sandbox.SkinnedModelRenderer",
-                "__guid": "dc60daa8-eee1-402d-9e45-ee34a4b88fee",
+                "__guid": "32a979e8-dcab-4df7-a31c-5275b69b9259",
                 "__enabled": true,
                 "Flags": 0,
                 "AnimationGraph": null,
@@ -339,7 +339,7 @@
             "Children": []
           },
           {
-            "__guid": "27aea028-748b-4edf-a24f-e7b23a00b41f",
+            "__guid": "98ca53f5-aacb-4b8e-a634-6affc3ef61d3",
             "__version": 2,
             "Flags": 0,
             "Name": "Clothing - cargo_pants_army",
@@ -356,7 +356,7 @@
             "Components": [
               {
                 "__type": "Sandbox.SkinnedModelRenderer",
-                "__guid": "cd7216f1-f2bd-4853-ab85-24f300d6d442",
+                "__guid": "60f5dead-497f-4281-92db-b75914bde5d8",
                 "__enabled": true,
                 "Flags": 0,
                 "AnimationGraph": null,
@@ -408,7 +408,7 @@
             "Children": []
           },
           {
-            "__guid": "e6a86d7d-6a1b-44f4-88ee-a8931d9607ea",
+            "__guid": "03cd4427-dec3-46ab-8218-42e0ed0dda66",
             "__version": 2,
             "Flags": 0,
             "Name": "Clothing - army_boots",
@@ -425,7 +425,7 @@
             "Components": [
               {
                 "__type": "Sandbox.SkinnedModelRenderer",
-                "__guid": "6c212fe2-32dd-48c1-9d2a-a7f59e21a250",
+                "__guid": "869f650b-b77a-4ebe-bf2b-c9e0b7d50f0d",
                 "__enabled": true,
                 "Flags": 0,
                 "AnimationGraph": null,

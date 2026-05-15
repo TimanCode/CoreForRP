@@ -2,6 +2,7 @@ using Sandbox;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Sandbox.Citizen;
 
 public sealed class PlayerStats : Component
 {
@@ -78,66 +79,100 @@ public sealed class PlayerStats : Component
 		Armor = (Armor + amount).Clamp( 0, MaxArmor );
 	}
 
-	[Rpc.Broadcast]
-	public void EquipArmorVisualRpc( string clothingPath )
+	public void AddThirst( float amount )
 	{
-		var armorClothing = ResourceLibrary.Get<Clothing>( clothingPath );
-		if ( armorClothing == null ) return;
-
-		var playerRenderer = Components.Get<SkinnedModelRenderer>( FindMode.EverythingInSelfAndDescendants );
-		if ( playerRenderer == null ) return;
-
-		// Удаляем старую броню по имени
-		foreach ( var child in GameObject.Children.Where( x => x.Name == "VisualArmor" ).ToList() )
-		{
-			child.Destroy();
-		}
-
-		var armorObj = new GameObject( true, "VisualArmor" );
-		armorObj.SetParent( GameObject ); 
-
-		var armorRenderer = armorObj.Components.Create<SkinnedModelRenderer>();
-		if ( !string.IsNullOrEmpty( armorClothing.Model ) )
-		{
-			armorRenderer.Model = Model.Load( armorClothing.Model );
-			armorRenderer.BoneMergeTarget = playerRenderer;
-		}
+		// Прокси-объекты (клиенты) не должны сами менять свои статы напрямую,
+		// это делает только хост/сервер.
+		if ( IsProxy ) return;
+		
+		// Прибавляем значение и не даем ему подняться выше 100
+		Thirst = (Thirst + amount).Clamp( 0, 100f );
 	}
 
-	[Rpc.Broadcast]
-private void BroadcastDeath()
+[Rpc.Broadcast]
+public void EquipArmorVisualRpc( string clothingPath )
 {
-    OnDeath?.Invoke();
-    
-    if ( Networking.IsHost )
-    {
-        CreateRagdoll();
-    }
+	var armorClothing = ResourceLibrary.Get<Clothing>( clothingPath );
+	if ( armorClothing == null ) return;
 
-    // 1. Выключаем все визуальные части
-    var allRenderers = GameObject.Components.GetAll<SkinnedModelRenderer>( FindMode.EverythingInSelfAndDescendants );
-    foreach ( var r in allRenderers )
-    {
-        r.Enabled = false;
-    }
+	// Пытаемся найти хелпер анимации, который вы скинули
+	var animHelper = Components.Get<CitizenAnimationHelper>( FindMode.EverythingInSelfAndDescendants );
+	var playerRenderer = animHelper?.Target ?? Components.Get<SkinnedModelRenderer>( FindMode.EverythingInSelfAndDescendants );
+	
+	if ( playerRenderer == null ) return;
 
-    // 2. ОТКЛЮЧАЕМ УПРАВЛЕНИЕ
-    // Ищем ваш скрипт передвижения и выключаем его
-    var movement = GameObject.Components.Get<PlayerMovementControl>();
-    if ( movement != null ) 
-    {
-        movement.Enabled = false;
-    }
+	// --- Логика надевания одежды ---
+	foreach ( var child in GameObject.Children.Where( x => x.Name == "VisualArmor" ).ToList() )
+	{
+		child.Destroy();
+	}
 
-    // 3. ОТКЛЮЧАЕМ КОЛЛИЗИИ
-    // CharacterController продолжает работать, даже если модель скрыта.
-    // Его нужно выключить, чтобы игрок перестал "существовать" физически.
-    var controller = GameObject.Components.Get<CharacterController>();
-    if ( controller != null )
-    {
-        controller.Enabled = false;
-    }
+	var armorObj = new GameObject( true, "VisualArmor" );
+	armorObj.SetParent( GameObject ); 
+
+	var armorRenderer = armorObj.Components.Create<SkinnedModelRenderer>();
+	if ( !string.IsNullOrEmpty( armorClothing.Model ) )
+	{
+		armorRenderer.Model = Model.Load( armorClothing.Model );
+		armorRenderer.BoneMergeTarget = playerRenderer;
+	}
+
+	// --- Логика анимации ---
+	_ = PlayEquipAnimation( playerRenderer );
 }
+
+private async Task PlayEquipAnimation( SkinnedModelRenderer renderer )
+{
+	if ( !renderer.IsValid ) return;
+
+	// Анимация @AvatarMenu_ExamineBody_04 в стандартном Citizen AnimGraph 
+	// активируется через этот булевый параметр:
+	renderer.Set( "b_admin_examine", true );
+
+	// Ждем 1 секунду (как вы просили)
+	await Task.DelaySeconds( 1.0f );
+
+	// Возвращаем в обычное состояние
+	if ( renderer.IsValid )
+	{
+		renderer.Set( "b_admin_examine", false );
+	}
+}
+
+	[Rpc.Broadcast]
+	private void BroadcastDeath()
+	{
+		OnDeath?.Invoke();
+		
+		if ( Networking.IsHost )
+		{
+			CreateRagdoll();
+		}
+
+		// 1. Выключаем все визуальные части
+		var allRenderers = GameObject.Components.GetAll<SkinnedModelRenderer>( FindMode.EverythingInSelfAndDescendants );
+		foreach ( var r in allRenderers )
+		{
+			r.Enabled = false;
+		}
+
+		// 2. ОТКЛЮЧАЕМ УПРАВЛЕНИЕ
+		// Ищем ваш скрипт передвижения и выключаем его
+		var movement = GameObject.Components.Get<PlayerMovementControl>();
+		if ( movement != null ) 
+		{
+			movement.Enabled = false;
+		}
+
+		// 3. ОТКЛЮЧАЕМ КОЛЛИЗИИ
+		// CharacterController продолжает работать, даже если модель скрыта.
+		// Его нужно выключить, чтобы игрок перестал "существовать" физически.
+		var controller = GameObject.Components.Get<CharacterController>();
+		if ( controller != null )
+		{
+			controller.Enabled = false;
+		}
+	}
 
 	private void CreateRagdoll()
 	{

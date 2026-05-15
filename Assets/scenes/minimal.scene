@@ -833,6 +833,42 @@
         "5d0cdfd4-0f1d-4572-9bc3-5b7a39a50050": "cf8c2c39-4c5d-44c6-84d3-acdf99867210",
         "262164e8-fb35-45a0-bbb7-4d9eacd11dbb": "c8eaf832-c08e-42e7-aaa1-2b675581284d"
       }
+    },
+    {
+      "__guid": "f8115525-3d2c-4b24-8eed-9e702eb899e1",
+      "__version": 2,
+      "__Prefab": "prefabs/soda.prefab",
+      "__PrefabInstancePatch": {
+        "AddedObjects": [],
+        "RemovedObjects": [],
+        "PropertyOverrides": [
+          {
+            "Target": {
+              "Type": "GameObject",
+              "IdValue": "666cebdc-d42a-4034-875e-3d01b015e434"
+            },
+            "Property": "Position",
+            "Value": "165.802338,12.0027466,69.1533661"
+          },
+          {
+            "Target": {
+              "Type": "GameObject",
+              "IdValue": "666cebdc-d42a-4034-875e-3d01b015e434"
+            },
+            "Property": "NetworkMode",
+            "Value": 1
+          }
+        ],
+        "MovedObjects": []
+      },
+      "__PrefabIdToInstanceId": {
+        "666cebdc-d42a-4034-875e-3d01b015e434": "f8115525-3d2c-4b24-8eed-9e702eb899e1",
+        "3f35a0b3-a653-4572-bcbb-cc30773570ec": "c667fbd9-cbc2-4945-a310-bf8d4c169077",
+        "7af708e5-7ef5-40ba-942e-ce27d7334e59": "3556aaa3-9fa4-4ef1-8220-8654e1ab6065",
+        "eb7710bd-a526-4e8a-bab9-8e628bc2b38d": "203d49d3-c39d-4c6a-b53d-ad68d1afc670",
+        "c1f8dd03-7479-46d0-b32a-8b8122038316": "3a8ef031-ffa5-453e-bca9-4d542c07508d",
+        "b62ae77d-ef6b-474e-9d7f-d12618262033": "389c840d-f4e6-412d-97a8-1ec95d78c911"
+      }
     }
   ],
   "SceneProperties": {
@@ -857,11 +893,6 @@
       "CustomBounds": false
     },
     "GameObjectSystems": {
-      "Sandbox.Clutter.ClutterGridSystem": {
-        "Storage": {
-          "$blob": "9873d901-8bb5-4429-80b4-410e2a5bfcdc"
-        }
-      },
       "Sandbox.SelectionSetsSystem": {
         "Data": {
           "SelectionSets": []
