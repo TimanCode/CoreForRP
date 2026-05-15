@@ -5,7 +5,7 @@ using System.Linq;
 public struct InventoryItemState
 {
 	public Guid InstanceId { get; set; } // Уникальный ID конкретно этой вещи в рюкзаке
-	public string ItemId { get; set; }   // Текстовый ID ("water_bottle")
+	public PrefabScene ItemPrefab { get; set; } // <--- ТЕПЕРЬ ТУТ ХРАНИТСЯ ПРЕФАБ
 	public string IconPath { get; set; } // Путь к иконке или модели
 	public int Width { get; set; }
 	public int Height { get; set; }
@@ -13,12 +13,12 @@ public struct InventoryItemState
 	public int Y { get; set; }
 	public bool Rotated { get; set; }
 
-	public static InventoryItemState Create( string itemId, string icon, int width, int height )
+	public static InventoryItemState Create( PrefabScene prefab, string icon, int width, int height )
 	{
 		return new InventoryItemState
 		{
 			InstanceId = Guid.NewGuid(),
-			ItemId = itemId,
+			ItemPrefab = prefab, // Сохраняем переданный префаб
 			IconPath = icon,
 			Width = width,
 			Height = height,
@@ -128,4 +128,76 @@ public sealed partial class PlayerInventory : Component
 	// === RPC Методы ===
 	[Rpc.Host] private void RequestAddItem( InventoryItemState item ) => TryAddItem( item );
 	[Rpc.Host] private void RequestMoveItem( Guid instanceId, int x, int y, bool rotated ) => TryMoveItem( instanceId, x, y, rotated );
+	[Rpc.Broadcast]
+	public void DropItemRpc( Guid instanceId, Vector3 dropDirection )
+	{
+		if ( !Networking.IsHost ) return;
+
+		int itemIndex = -1;
+		for ( int i = 0; i < Items.Count; i++ )
+		{
+			if ( Items[i].InstanceId == instanceId )
+			{
+				itemIndex = i;
+				break;
+			}
+		}
+
+		if ( itemIndex == -1 ) return;
+		var item = Items[itemIndex];
+		Items.RemoveAt( itemIndex );
+
+		if ( item.ItemPrefab != null )
+		{
+			// Используем переданное направление для позиции спавна
+			// Спавним чуть впереди (на 50 юнитов) и чуть выше центра
+			var spawnPos = WorldPosition + dropDirection * 50f + Vector3.Up * 45f;
+			
+			// Создаем предмет. Вращение можно оставить как у игрока или сделать случайным
+			var droppedObj = item.ItemPrefab.Clone( spawnPos, Rotation.LookAt( dropDirection ) );
+			droppedObj.Name = "Dropped Item";
+
+			var rb = droppedObj.Components.Get<Rigidbody>( FindMode.EverythingInSelfAndDescendants );
+			if ( rb != null )
+			{
+				// Пинка даем строго в сторону взгляда + чуть-чуть вверх
+				rb.Velocity = dropDirection * 200f + Vector3.Up * 50f;
+			}
+
+			droppedObj.NetworkSpawn();
+		}
+	}
+
+	[Rpc.Host]
+	public void UseItemRpc( Guid instanceId )
+	{
+		if ( !Networking.IsHost ) return;
+
+		int itemIndex = GetItemIndex( instanceId );
+		if ( itemIndex == -1 ) return;
+
+		var item = Items[itemIndex];
+
+		// 1. Сразу удаляем предмет из инвентаря
+		Items.RemoveAt( itemIndex );
+
+		if ( item.ItemPrefab != null )
+		{
+			// 2. Создаем предмет из префаба далеко внизу, чтобы он не мелькал на экране
+			var tempObj = item.ItemPrefab.Clone( Vector3.Down * 10000, Rotation.Identity );
+			
+			// Обязательно спавним в сети, иначе RPC (EquipArmorRpc) внутри предмета не сработает
+			tempObj.NetworkSpawn(); 
+
+			// 3. Вызываем логику потребления
+			var pickup = tempObj.Components.Get<BasePickup>( FindMode.EverythingInSelfAndDescendants );
+			if ( pickup != null )
+			{
+				pickup.OnConsume( GameObject ); // GameObject — это сам игрок (владелец инвентаря)
+			}
+
+			// 4. Уничтожаем временный объект
+			tempObj.Destroy();
+		}
+	}
 }

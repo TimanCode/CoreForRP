@@ -7,7 +7,7 @@
 @* <root> всегда тут, но класс "is-open" появляется только при открытии *@
 <root class=@(IsOpen && _localInventory != null ? "is-open" : "")>
     
-    @* А вот саму сетку и предметы рисуем только когда открыто *@
+    @* Саму сетку и предметы рисуем только когда открыто *@
     @if ( IsOpen && _localInventory != null )
     {
         <div class="inventory" @ref="inventoryRoot" onmousemove=@OnMouseMove onmouseup=@OnMouseUp>
@@ -34,7 +34,6 @@
 
                 <div class="item"
                      style="left:@(item.X * CellSize)px; top:@(item.Y * CellSize)px; width:@(width * CellSize)px; height:@(height * CellSize)px;"
-                     @* Передаем базовый PanelEvent 'e', чтобы не было ошибки каста *@
                      onmousedown=@( ( PanelEvent e ) => StartDrag( e, item.InstanceId ) )>
                     
                     <div class="item-icon" style="background-image:url('thumb:@(item.IconPath)')"></div>
@@ -46,10 +45,18 @@
             {
                 int width = DraggedItem.Value.Rotated ? DraggedItem.Value.Height : DraggedItem.Value.Width;
                 int height = DraggedItem.Value.Rotated ? DraggedItem.Value.Width : DraggedItem.Value.Height;
-
-                @* ВАЖНО: добавил pointer-events: none, чтобы предмет не перекрывал мышку при перетаскивании *@
+                
                 <div class="item dragging" style="left:@(dragPos.x)px; top:@(dragPos.y)px; width:@(width * CellSize)px; height:@(height * CellSize)px; pointer-events: none;">
                     <div class="item-icon" style="background-image:url('thumb:@(DraggedItem.Value.IconPath)')"></div>
+                </div>
+            }
+
+            @* Контекстное меню *@
+            @if ( isMenuOpen )
+            {
+                <div class="context-menu" style="left: @(menuPos.x)px; top: @(menuPos.y)px;">
+                    <div class="menu-item" onmousedown=@OnUseClick>Использовать</div>
+                    <div class="menu-item" onmousedown=@OnDropClick>Выбросить</div>
                 </div>
             }
         </div>
@@ -58,14 +65,20 @@
 
 @code {
     [Property] public int CellSize { get; set; } = 50;
-
     public bool IsOpen { get; set; } = false;
+    
     private PlayerInventory _localInventory;
-
     private Panel inventoryRoot;
+    
+    // Состояние перетаскивания
     private Guid? draggingItemId;
     private Vector2 dragPos;
     private Vector2 dragOffset;
+
+    // Состояние контекстного меню
+    private bool isMenuOpen = false;
+    private Vector2 menuPos;
+    private Guid? menuItemId;
 
     private InventoryItemState? DraggedItem => draggingItemId.HasValue ? FindItem( draggingItemId.Value ) : null;
 
@@ -80,11 +93,16 @@
         {
             IsOpen = !IsOpen;
             
-            if ( IsOpen )
+            if ( !IsOpen ) 
             {
-                StopDrag(); 
+                CloseContextMenu();
             }
-            StateHasChanged(); 
+            else 
+            {
+                StopDrag();
+            }
+            
+            StateHasChanged();
         }
 
         Panel.Style.PointerEvents = IsOpen ? PointerEvents.All : PointerEvents.None;
@@ -93,34 +111,34 @@
     private InventoryItemState? FindItem( Guid id )
     {
         if ( _localInventory == null ) return null;
-        foreach ( var item in _localInventory.Items )
-        {
-            if ( item.InstanceId == id ) return item;
-        }
-        return null;
+        return _localInventory.Items.FirstOrDefault( x => x.InstanceId == id );
     }
 
     void StartDrag( PanelEvent e, Guid instanceId )
     {
-        // Твоя логика проверки: если это событие мыши и кнопка НЕ левая - выходим
         if ( e is MousePanelEvent mouseEvent )
         {
-            if ( mouseEvent.MouseButton != MouseButtons.Left )
+            // Правая кнопка — контекстное меню
+            if ( mouseEvent.MouseButton == MouseButtons.Right )
             {
+                OpenContextMenu( instanceId );
                 return;
             }
+
+            // Левая кнопка — начало перетаскивания
+            if ( mouseEvent.MouseButton != MouseButtons.Left )
+                return;
         }
-        else
-        {
-            return; // Если это вообще не мышь, тоже отменяем
-        }
+        else return;
 
         if ( _localInventory == null || inventoryRoot == null ) return;
+        
         var item = FindItem( instanceId );
         if ( item == null ) return;
 
-        draggingItemId = instanceId;
+        CloseContextMenu();
 
+        draggingItemId = instanceId;
         float itemX = item.Value.X * CellSize;
         float itemY = item.Value.Y * CellSize;
         dragPos = new Vector2( itemX, itemY );
@@ -132,41 +150,43 @@
         StateHasChanged();
     }
 
-    void OnMouseMove( PanelEvent _ ) // Сменил object на PanelEvent
+    void OnMouseMove( PanelEvent _ )
     {
         if ( draggingItemId == null || inventoryRoot == null ) return;
 
         float scale = inventoryRoot.ScaleFromScreen;
         Vector2 localMouse = (Mouse.Position - inventoryRoot.Box.Rect.Position) * scale;
         dragPos = localMouse - dragOffset;
-
+        
         dragPos.x = MathF.Max( 0, dragPos.x );
         dragPos.y = MathF.Max( 0, dragPos.y );
 
         StateHasChanged();
     }
     
-    void OnMouseUp( PanelEvent _ )
+    void OnMouseUp( PanelEvent e )
     {
-        // Твоя логика проверки: если отпустили НЕ левую кнопку, просто выходим
-        if ( _ is MousePanelEvent mouseEvent )
+        if ( e is MousePanelEvent mouseEvent )
         {
-            if ( mouseEvent.MouseButton != MouseButtons.Left )
+            if ( mouseEvent.MouseButton == MouseButtons.Left )
             {
-                return;
+                if ( draggingItemId == null ) CloseContextMenu();
             }
+            else if ( mouseEvent.MouseButton != MouseButtons.Left ) return;
         }
 
         if ( draggingItemId == null ) return;
+        
         var item = DraggedItem;
 
         if ( item != null && _localInventory != null )
         {
-            int cellX = (int)MathF.Round( dragPos.x / CellSize ); 
+            int cellX = (int)MathF.Round( dragPos.x / CellSize );
             int cellY = (int)MathF.Round( dragPos.y / CellSize );
+            
             cellX = Math.Max( 0, cellX );
             cellY = Math.Max( 0, cellY );
-
+            
             _localInventory.TryMoveItem( item.Value.InstanceId, cellX, cellY, item.Value.Rotated );
         }
 
@@ -178,4 +198,56 @@
         draggingItemId = null;
         StateHasChanged();
     }
+
+    // --- Логика меню ---
+
+    void OpenContextMenu( Guid instanceId )
+    {
+        if ( inventoryRoot == null ) return;
+
+        menuItemId = instanceId;
+        isMenuOpen = true;
+
+        float scale = inventoryRoot.ScaleFromScreen;
+        menuPos = (Mouse.Position - inventoryRoot.Box.Rect.Position) * scale;
+        
+        StateHasChanged();
+    }
+
+    void CloseContextMenu()
+    {
+        if ( !isMenuOpen ) return;
+        
+        isMenuOpen = false;
+        menuItemId = null;
+        StateHasChanged();
+    }
+
+    void OnUseClick()
+    {
+        if ( menuItemId.HasValue && _localInventory != null )
+        {
+            // Отправляем запрос на сервер об использовании предмета
+            _localInventory.UseItemRpc( menuItemId.Value );
+        }
+        
+        CloseContextMenu();
+    }
+    void OnDropClick()
+        {
+            if ( menuItemId.HasValue && _localInventory != null )
+            {
+                var item = FindItem( menuItemId.Value );
+                if ( item != null )
+                {
+                    // Берем направление "вперед" от камеры сцены
+                    Vector3 lookDir = Scene.Camera.Transform.World.Forward;
+                    
+                    // Передаем это направление в RPC
+                    _localInventory.DropItemRpc( menuItemId.Value, lookDir );
+                }
+            }
+            
+            CloseContextMenu();
+        }
 }

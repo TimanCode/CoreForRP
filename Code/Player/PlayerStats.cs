@@ -91,6 +91,35 @@ public sealed class PlayerStats : Component
 		Health = (Health + amount).Clamp( 0, MaxHealth );
 	}
 
+	[Rpc.Broadcast]
+	public void EquipArmorVisualRpc( int clothingResourceId )
+	{
+		// 1. Восстанавливаем предмет одежды из ID
+		var armorClothing = ResourceLibrary.Get<Clothing>( clothingResourceId );
+		if ( armorClothing == null )
+		{
+			Log.Warning( "Броня не найдена по ID!" );
+			return;
+		}
+
+		// 2. Находим основную модель игрока
+		var playerRenderer = Components.Get<SkinnedModelRenderer>( FindMode.EverythingInSelfAndDescendants );
+		if ( playerRenderer == null ) return;
+
+		// 3. Создаем дочерний объект специально для визуала брони
+		var armorObj = new GameObject( true, "VisualArmor" );
+		armorObj.SetParent( playerRenderer.GameObject );
+
+		// 4. Добавляем рендерер и привязываем его к костям (BoneMerge)
+		var armorRenderer = armorObj.Components.Create<SkinnedModelRenderer>();
+		
+		if ( !string.IsNullOrEmpty( armorClothing.Model ) )
+		{
+			armorRenderer.Model = Model.Load( armorClothing.Model );
+			armorRenderer.BoneMergeTarget = playerRenderer; 
+		}
+	}
+
 	/// <summary>
 	/// Оповещаем всех о смерти игрока
 	/// </summary>

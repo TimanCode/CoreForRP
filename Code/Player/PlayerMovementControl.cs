@@ -3,7 +3,8 @@ using Sandbox.Citizen;
 
 public sealed class PlayerMovementControl : Component
 {
-	[Property] public float MoveSpeed { get; set; } = 150f;
+	// Уменьшаем MoveSpeed, чтобы скорость была ниже порога перехода в бег (120f)
+	[Property] public float MoveSpeed { get; set; } = 100f; 
 	[Property] public float RunSpeed { get; set; } = 300f;
 	[Property] public float Acceleration { get; set; } = 10f;
 	[Property] public float RotationSmoothTime { get; set; } = 10f;
@@ -53,7 +54,8 @@ public sealed class PlayerMovementControl : Component
 
 		if ( moveInput.Length > 0 ) moveInput = moveInput.Normal;
 
-		_isRunning = Input.Down( "run" );
+		// Добавлена проверка на то, что игрок реально двигается
+		_isRunning = Input.Down( "run" ) && moveInput.LengthSquared > 0.01f;
 		float currentMaxSpeed = IsCrouching ? 80f : (_isRunning ? RunSpeed : MoveSpeed);
 
 		if ( Scene.Camera != null )
@@ -127,7 +129,13 @@ public sealed class PlayerMovementControl : Component
 		Animator.IsGrounded = Controller.IsOnGround;
 		Animator.DuckLevel = IsCrouching ? 1f : 0f;
         
-        // Передаем EyeAngles аниматору, чтобы голова тоже крутилась по сети
-        Animator.WithLook( EyeAngles.Forward );
+		// Передаем EyeAngles аниматору, чтобы голова тоже крутилась по сети
+		Animator.WithLook( EyeAngles.Forward );
+
+		// Задаем стиль движения (Ходьба или Бег) в зависимости от текущей скорости
+		var speed = Controller.Velocity.WithZ( 0 ).Length;
+		Animator.MoveStyle = speed > 120f
+			? CitizenAnimationHelper.MoveStyles.Run
+			: CitizenAnimationHelper.MoveStyles.Walk;
 	}
 }

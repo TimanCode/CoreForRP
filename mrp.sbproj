@@ -23,6 +23,7 @@
     "PerMapRanking": false,
     "LeaderboardType": "None",
     "CsProjName": "",
-    "StartupScene": "scenes/minimal.scene"
+    "StartupScene": "scenes/minimal.scene",
+    "LaunchMode": "DedicatedServerOnly"
   }
 }

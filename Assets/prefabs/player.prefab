@@ -108,21 +108,21 @@
         "__guid": "d4bb7eb6-546a-4628-b170-a9efda20dea7",
         "__enabled": true,
         "Flags": 0,
-        "Acceleration": 10,
+        "Acceleration": 3,
         "Body": {
           "_type": "gameobject",
           "go": "59b1c90f-19d1-41d0-b58c-29a3e7ab2de5"
         },
         "JumpPower": 300,
-        "MoveSpeed": 200,
+        "MoveSpeed": 90,
         "OnComponentDestroy": null,
         "OnComponentDisabled": null,
         "OnComponentEnabled": null,
         "OnComponentFixedUpdate": null,
         "OnComponentStart": null,
         "OnComponentUpdate": null,
-        "RotationSmoothTime": 10,
-        "RunSpeed": 300
+        "RotationSmoothTime": 3,
+        "RunSpeed": 200
       },
       {
         "__type": "PlayerCameraControl",
@@ -270,7 +270,7 @@
         ],
         "Children": [
           {
-            "__guid": "70d96d73-bd93-45d5-96f2-bd90cd1c907e",
+            "__guid": "e691a9da-299e-4722-83b5-d1d6db72eefe",
             "__version": 2,
             "Flags": 0,
             "Name": "Clothing - army_shirt",
@@ -287,7 +287,7 @@
             "Components": [
               {
                 "__type": "Sandbox.SkinnedModelRenderer",
-                "__guid": "59f7f5e5-ebf0-4ed4-8867-61e344cc1608",
+                "__guid": "dc60daa8-eee1-402d-9e45-ee34a4b88fee",
                 "__enabled": true,
                 "Flags": 0,
                 "AnimationGraph": null,
@@ -339,7 +339,7 @@
             "Children": []
           },
           {
-            "__guid": "03453c90-73ef-428c-b121-7572e50def54",
+            "__guid": "27aea028-748b-4edf-a24f-e7b23a00b41f",
             "__version": 2,
             "Flags": 0,
             "Name": "Clothing - cargo_pants_army",
@@ -356,7 +356,7 @@
             "Components": [
               {
                 "__type": "Sandbox.SkinnedModelRenderer",
-                "__guid": "3c875a68-5882-430c-98fd-264e8d08309b",
+                "__guid": "cd7216f1-f2bd-4853-ab85-24f300d6d442",
                 "__enabled": true,
                 "Flags": 0,
                 "AnimationGraph": null,
@@ -408,7 +408,7 @@
             "Children": []
           },
           {
-            "__guid": "44860dea-7d89-4ee5-9ebc-3adb1e54b9ca",
+            "__guid": "e6a86d7d-6a1b-44f4-88ee-a8931d9607ea",
             "__version": 2,
             "Flags": 0,
             "Name": "Clothing - army_boots",
@@ -425,7 +425,7 @@
             "Components": [
               {
                 "__type": "Sandbox.SkinnedModelRenderer",
-                "__guid": "7d86296f-bf6d-4c76-bec6-a9b6b1a64f8f",
+                "__guid": "6c212fe2-32dd-48c1-9d2a-a7f59e21a250",
                 "__enabled": true,
                 "Flags": 0,
                 "AnimationGraph": null,

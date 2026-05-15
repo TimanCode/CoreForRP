@@ -16,33 +16,6 @@
     "OwnerTransfer": 1,
     "Components": [
       {
-        "__type": "Sandbox.ModelRenderer",
-        "__guid": "721adff5-7381-41a3-91a4-d2c455be5ac6",
-        "__enabled": true,
-        "Flags": 0,
-        "BodyGroups": 18446744073709551615,
-        "CreateAttachments": false,
-        "LodOverride": null,
-        "MaterialGroup": null,
-        "MaterialOverride": null,
-        "Materials": null,
-        "Model": "models/citizen_clothes/vest/tactical_vest/models/tactical_vest_m_human.vmdl",
-        "OnComponentDestroy": null,
-        "OnComponentDisabled": null,
-        "OnComponentEnabled": null,
-        "OnComponentFixedUpdate": null,
-        "OnComponentStart": null,
-        "OnComponentUpdate": null,
-        "RenderOptions": {
-          "GameLayer": true,
-          "OverlayLayer": false,
-          "BloomLayer": false,
-          "AfterUILayer": false
-        },
-        "RenderType": "On",
-        "Tint": "1,1,1,1"
-      },
-      {
         "__type": "Sandbox.Rigidbody",
         "__guid": "7e04897e-00ef-47e0-b2c8-229783632340",
         "__enabled": true,
@@ -73,7 +46,9 @@
         "OnComponentStart": null,
         "OnComponentUpdate": null,
         "OverrideMassCenter": false,
+        "PreciseContacts": false,
         "RigidbodyFlags": 0,
+        "SleepThreshold": 2,
         "StartAsleep": false
       },
       {
@@ -81,7 +56,7 @@
         "__guid": "35f6a308-1181-4e28-8c96-cf8a63444bcb",
         "__enabled": true,
         "Flags": 0,
-        "Center": "1.09594011,-0.361699104,49.926712",
+        "Center": "1.09594011,-0.361699104,10",
         "ColliderFlags": 0,
         "Elasticity": null,
         "Friction": null,
@@ -105,16 +80,18 @@
       {
         "__type": "ArmorPickup",
         "__guid": "9c8700cf-983c-43c6-83cc-29f567d2986c",
-        "__enabled": false,
+        "__enabled": true,
         "Flags": 0,
-        "Amount": 1,
         "ArmorAmount": 100,
         "ArmorClothingItem": "models/bad frak/bad frak.clothing",
         "DisplayName": "Неизвестный предмет",
-        "GridHeight": 1,
-        "GridWidth": 1,
+        "GridHeight": 3,
+        "GridWidth": 2,
         "IconPath": "models/editor/axis_helper.vmdl_c",
-        "ItemId": "test_item",
+        "ItemPrefab": {
+          "_type": "gameobject",
+          "prefab": "prefabs/tactical_vest.prefab"
+        },
         "OnComponentDestroy": null,
         "OnComponentDisabled": null,
         "OnComponentEnabled": null,
@@ -125,14 +102,16 @@
       {
         "__type": "BasePickup",
         "__guid": "bb026c2f-9166-45d9-a0e2-fd77a87e5dda",
-        "__enabled": true,
+        "__enabled": false,
         "Flags": 0,
-        "Amount": 1,
         "DisplayName": "Бронежилет",
         "GridHeight": 3,
         "GridWidth": 2,
         "IconPath": "models/citizen_clothes/vest/tactical_vest/models/tactical_vest_army_m_human.vmdl_c",
-        "ItemId": "armor",
+        "ItemPrefab": {
+          "_type": "gameobject",
+          "prefab": "prefabs/tactical_vest.prefab"
+        },
         "OnComponentDestroy": null,
         "OnComponentDisabled": null,
         "OnComponentEnabled": null,
@@ -141,7 +120,54 @@
         "OnComponentUpdate": null
       }
     ],
-    "Children": [],
+    "Children": [
+      {
+        "__guid": "5d0cdfd4-0f1d-4572-9bc3-5b7a39a50050",
+        "__version": 2,
+        "Flags": 0,
+        "Name": "Object",
+        "Position": "0,0,-40",
+        "Rotation": "0,0,0,1",
+        "Scale": "1,1,1",
+        "Tags": "",
+        "Enabled": true,
+        "NetworkMode": 2,
+        "NetworkFlags": 0,
+        "NetworkOrphaned": 0,
+        "NetworkTransmit": true,
+        "OwnerTransfer": 1,
+        "Components": [
+          {
+            "__type": "Sandbox.ModelRenderer",
+            "__guid": "262164e8-fb35-45a0-bbb7-4d9eacd11dbb",
+            "__enabled": true,
+            "Flags": 0,
+            "BodyGroups": 18446744073709551615,
+            "CreateAttachments": false,
+            "LodOverride": null,
+            "MaterialGroup": null,
+            "MaterialOverride": null,
+            "Materials": null,
+            "Model": "models/citizen_clothes/vest/tactical_vest/models/tactical_vest_m_human.vmdl",
+            "OnComponentDestroy": null,
+            "OnComponentDisabled": null,
+            "OnComponentEnabled": null,
+            "OnComponentFixedUpdate": null,
+            "OnComponentStart": null,
+            "OnComponentUpdate": null,
+            "RenderOptions": {
+              "GameLayer": true,
+              "OverlayLayer": false,
+              "BloomLayer": false,
+              "AfterUILayer": false
+            },
+            "RenderType": "On",
+            "Tint": "1,1,1,1"
+          }
+        ],
+        "Children": []
+      }
+    ],
     "__properties": {
       "NetworkInterpolation": true,
       "TimeScale": 1,
