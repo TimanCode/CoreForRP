@@ -178,23 +178,22 @@ public sealed partial class PlayerInventory : Component
 
 		var item = Items[itemIndex];
 
-		// 1. Сразу удаляем предмет из инвентаря
-		Items.RemoveAt( itemIndex );
-
 		if ( item.ItemPrefab != null )
 		{
-			// 2. Создаем предмет из префаба далеко внизу, чтобы он не мелькал на экране
+			// 1. Создаем временный объект для извлечения данных
 			var tempObj = item.ItemPrefab.Clone( Vector3.Down * 10000, Rotation.Identity );
 			
-			// Обязательно спавним в сети, иначе RPC (EquipArmorRpc) внутри предмета не сработает
-			tempObj.NetworkSpawn(); 
-
-			// 3. Вызываем логику потребления
+			// 2. Ищем компонент подбора
 			var pickup = tempObj.Components.Get<BasePickup>( FindMode.EverythingInSelfAndDescendants );
+
 			if ( pickup != null )
 			{
-				pickup.OnConsume( GameObject ); // GameObject — это сам игрок (владелец инвентаря)
+				// ВАЖНО: Вызываем логику использования
+				pickup.OnConsume( GameObject );
 			}
+
+			// 3. Удаляем из инвентаря
+			Items.RemoveAt( itemIndex );
 
 			// 4. Уничтожаем временный объект
 			tempObj.Destroy();

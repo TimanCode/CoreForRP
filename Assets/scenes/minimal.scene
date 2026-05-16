@@ -848,7 +848,7 @@
               "IdValue": "666cebdc-d42a-4034-875e-3d01b015e434"
             },
             "Property": "Position",
-            "Value": "165.802338,12.0027466,69.1533661"
+            "Value": "136.893082,128.73877,7.12138748"
           },
           {
             "Target": {
@@ -868,6 +868,62 @@
         "eb7710bd-a526-4e8a-bab9-8e628bc2b38d": "203d49d3-c39d-4c6a-b53d-ad68d1afc670",
         "c1f8dd03-7479-46d0-b32a-8b8122038316": "3a8ef031-ffa5-453e-bca9-4d542c07508d",
         "b62ae77d-ef6b-474e-9d7f-d12618262033": "389c840d-f4e6-412d-97a8-1ec95d78c911"
+      }
+    },
+    {
+      "__guid": "b77350bd-e3db-4dae-b909-c4685c5399fb",
+      "__version": 2,
+      "__Prefab": "prefabs/beer.prefab",
+      "__PrefabInstancePatch": {
+        "AddedObjects": [],
+        "RemovedObjects": [],
+        "PropertyOverrides": [
+          {
+            "Target": {
+              "Type": "GameObject",
+              "IdValue": "9d5015dd-8918-4b43-b517-4da5c74ad00f"
+            },
+            "Property": "Position",
+            "Value": "179.142014,133.033936,20.6995888"
+          }
+        ],
+        "MovedObjects": []
+      },
+      "__PrefabIdToInstanceId": {
+        "9d5015dd-8918-4b43-b517-4da5c74ad00f": "b77350bd-e3db-4dae-b909-c4685c5399fb",
+        "f4d90a7a-24b8-4cb0-a614-29bb2ac38c7a": "ddc734f4-5f92-4c0e-8ff4-a1cb65f9fda5",
+        "27100ee3-3ee1-4cf9-90ba-d07019a8e2c9": "ba0023ca-7072-4408-a6ab-a956a75c75b6",
+        "e406d1f2-c0c7-4ece-aae4-c6b986ea14ad": "bebba974-3d86-4aa5-821f-66a8eda4b9f2",
+        "644b9246-7a3e-4d64-aa1b-1cdfe634a136": "cad618e6-5fe3-4617-9b3b-8f4e8513a368",
+        "10204fd8-4c1f-4a15-b4dc-fd81d2d90270": "ea95ef79-2350-49e6-8d82-2ce0eba36384"
+      }
+    },
+    {
+      "__guid": "35f72704-f74a-42a1-a767-f2b29cae8bb9",
+      "__version": 2,
+      "__Prefab": "prefabs/weapon_mp5.prefab",
+      "__PrefabInstancePatch": {
+        "AddedObjects": [],
+        "RemovedObjects": [],
+        "PropertyOverrides": [
+          {
+            "Target": {
+              "Type": "GameObject",
+              "IdValue": "1f50e029-3f6a-4cdc-bf3e-9313679f1a6f"
+            },
+            "Property": "Position",
+            "Value": "175.583908,186.466644,25.1376324"
+          }
+        ],
+        "MovedObjects": []
+      },
+      "__PrefabIdToInstanceId": {
+        "1f50e029-3f6a-4cdc-bf3e-9313679f1a6f": "35f72704-f74a-42a1-a767-f2b29cae8bb9",
+        "328ac2f1-fbc9-46cf-ac76-62bffad34311": "d06ad178-e999-499c-87b8-03f6fe59cdf4",
+        "2789720f-4e21-4e66-a6b2-28f11d5b03f5": "3e2c6e10-0f48-4822-b4c7-ad922ee3a1db",
+        "3c4b9379-76b6-46c3-8ce6-305ae2f51ddf": "16c68d18-530f-47d8-8d64-a4c1c6beac8d",
+        "91151c00-1e27-4a37-ab91-d31d2ede0538": "688d16c2-1076-4834-9b1f-2178e04474e9",
+        "076e8922-f093-4ace-a723-493241c30a4b": "98faef6d-051e-42a9-8e96-aca66d58023f"
       }
     }
   ],
@@ -893,13 +949,18 @@
       "CustomBounds": false
     },
     "GameObjectSystems": {
+      "Sandbox.MovieMaker.MovieRecorderSystem": {
+        "DisableClientRecording": false
+      },
+      "Sandbox.Clutter.ClutterGridSystem": {
+        "Storage": {
+          "$blob": "0df7faec-cd9a-4d96-acd3-b9e48689da57"
+        }
+      },
       "Sandbox.SelectionSetsSystem": {
         "Data": {
           "SelectionSets": []
         }
-      },
-      "Sandbox.MovieMaker.MovieRecorderSystem": {
-        "DisableClientRecording": false
       }
     }
   },

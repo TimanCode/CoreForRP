@@ -89,55 +89,71 @@ public sealed class PlayerStats : Component
 		Thirst = (Thirst + amount).Clamp( 0, 100f );
 	}
 
-[Rpc.Broadcast]
-public void EquipArmorVisualRpc( string clothingPath )
-{
-	var armorClothing = ResourceLibrary.Get<Clothing>( clothingPath );
-	if ( armorClothing == null ) return;
+	[Rpc.Broadcast]
+    public void EquipArmorVisualRpc( string clothingPath )
+    {
+        var armorClothing = ResourceLibrary.Get<Clothing>( clothingPath );
+        if ( armorClothing == null ) return;
 
-	// Пытаемся найти хелпер анимации, который вы скинули
-	var animHelper = Components.Get<CitizenAnimationHelper>( FindMode.EverythingInSelfAndDescendants );
-	var playerRenderer = animHelper?.Target ?? Components.Get<SkinnedModelRenderer>( FindMode.EverythingInSelfAndDescendants );
-	
-	if ( playerRenderer == null ) return;
+        // Находим основной меш игрока
+        var playerRenderer = Components.Get<SkinnedModelRenderer>( FindMode.EverythingInSelfAndDescendants );
+        if ( playerRenderer == null ) return;
 
-	// --- Логика надевания одежды ---
-	foreach ( var child in GameObject.Children.Where( x => x.Name == "VisualArmor" ).ToList() )
+        // --- Логика замены брони (уже была у вас) ---
+        foreach ( var child in GameObject.Children.Where( x => x.Name == "VisualArmor" ).ToList() )
+        {
+            child.Destroy();
+        }
+
+        var armorObj = new GameObject( true, "VisualArmor" );
+        armorObj.SetParent( GameObject ); 
+
+        var armorRenderer = armorObj.Components.Create<SkinnedModelRenderer>();
+        if ( !string.IsNullOrEmpty( armorClothing.Model ) )
+        {
+            armorRenderer.Model = Model.Load( armorClothing.Model );
+            armorRenderer.BoneMergeTarget = playerRenderer;
+        }
+
+        // --- ПРИНУДИТЕЛЬНАЯ АНИМАЦИЯ ---
+        _ = PlayEquipAnimationDirect( playerRenderer );
+    }
+
+	private async Task PlayEquipAnimationDirect( SkinnedModelRenderer renderer )
 	{
-		child.Destroy();
+		if ( !renderer.IsValid ) return;
+
+		// 1. Находим компонент управления и выключаем его
+		var movement = GameObject.Components.Get<PlayerMovementControl>();
+		if ( movement != null )
+		{
+			movement.Enabled = false;
+		}
+
+		// 2. Запоминаем текущее состояние AnimGraph и выключаем его
+		bool wasUsingGraph = renderer.UseAnimGraph;
+		renderer.UseAnimGraph = false;
+
+		// 3. Запускаем анимацию
+		renderer.Sequence.Name = "@AvatarMenu_ExamineLegs_02";
+		renderer.Sequence.Time = 0;
+
+		// 4. Ждем завершения (3 секунды)
+		await Task.DelaySeconds( 3.0f );
+
+		// 5. Возвращаем всё в исходное состояние
+		if ( renderer.IsValid )
+		{
+			renderer.Sequence.Name = "";
+			renderer.UseAnimGraph = wasUsingGraph;
+		}
+
+		// 6. Включаем движение обратно
+		if ( movement.IsValid )
+		{
+			movement.Enabled = true;
+		}
 	}
-
-	var armorObj = new GameObject( true, "VisualArmor" );
-	armorObj.SetParent( GameObject ); 
-
-	var armorRenderer = armorObj.Components.Create<SkinnedModelRenderer>();
-	if ( !string.IsNullOrEmpty( armorClothing.Model ) )
-	{
-		armorRenderer.Model = Model.Load( armorClothing.Model );
-		armorRenderer.BoneMergeTarget = playerRenderer;
-	}
-
-	// --- Логика анимации ---
-	_ = PlayEquipAnimation( playerRenderer );
-}
-
-private async Task PlayEquipAnimation( SkinnedModelRenderer renderer )
-{
-	if ( !renderer.IsValid ) return;
-
-	// Анимация @AvatarMenu_ExamineBody_04 в стандартном Citizen AnimGraph 
-	// активируется через этот булевый параметр:
-	renderer.Set( "b_admin_examine", true );
-
-	// Ждем 1 секунду (как вы просили)
-	await Task.DelaySeconds( 1.0f );
-
-	// Возвращаем в обычное состояние
-	if ( renderer.IsValid )
-	{
-		renderer.Set( "b_admin_examine", false );
-	}
-}
 
 	[Rpc.Broadcast]
 	private void BroadcastDeath()
